@@ -1,0 +1,380 @@
+================================================================================
+TOP-LEVEL DIRECTORY STRUCTURE
+================================================================================
+.DS_Store
+
+EMA/
+  Contains 2 items
+    EMA_definition.json
+    response
+
+app_usage/
+  Contains 49 items
+    running_app_u00.csv
+    running_app_u01.csv
+    running_app_u02.csv
+    running_app_u03.csv
+    running_app_u04.csv
+    running_app_u05.csv
+    running_app_u07.csv
+    running_app_u08.csv
+    running_app_u09.csv
+    running_app_u10.csv
+    ...
+
+calendar/
+  Contains 28 items
+    calendar_u00.csv
+    calendar_u01.csv
+    calendar_u02.csv
+    calendar_u08.csv
+    calendar_u12.csv
+    calendar_u13.csv
+    calendar_u16.csv
+    calendar_u18.csv
+    calendar_u19.csv
+    calendar_u20.csv
+    ...
+
+call_log/
+  Contains 49 items
+    call_log_u00.csv
+    call_log_u01.csv
+    call_log_u02.csv
+    call_log_u03.csv
+    call_log_u04.csv
+    call_log_u05.csv
+    call_log_u07.csv
+    call_log_u08.csv
+    call_log_u09.csv
+    call_log_u10.csv
+    ...
+
+dinning/
+  Contains 31 items
+    u01.txt
+    u02.txt
+    u04.txt
+    u05.txt
+    u07.txt
+    u08.txt
+    u09.txt
+    u10.txt
+    u12.txt
+    u14.txt
+    ...
+
+education/
+  Contains 5 items
+    class.csv
+    class_info.json
+    deadlines.csv
+    grades.csv
+    piazza.csv
+
+sensing/
+  Contains 11 items
+    .DS_Store
+    activity
+    audio
+    bluetooth
+    conversation
+    dark
+    gps
+    phonecharge
+    phonelock
+    wifi
+    ...
+
+sms/
+  Contains 49 items
+    sms_u00.csv
+    sms_u01.csv
+    sms_u02.csv
+    sms_u03.csv
+    sms_u04.csv
+    sms_u05.csv
+    sms_u07.csv
+    sms_u08.csv
+    sms_u09.csv
+    sms_u10.csv
+    ...
+
+survey/
+  Contains 8 items
+    BigFive.csv
+    FlourishingScale.csv
+    LonelinessScale.csv
+    PHQ-9.csv
+    PerceivedStressScale.csv
+    panas.csv
+    psqi.csv
+    vr_12.csv
+
+================================================================================
+INSPECT IMPORTANT DATA SOURCES
+================================================================================
+
+FILE: studentLifeDataset/EMA/response/Mood/Mood_u01.json
+Top-level type: <class 'list'>
+List length: 2
+
+First item:
+{
+  "happy": "2",
+  "happyornot": "1",
+  "location": "43.70673326,-72.28908826",
+  "resp_time": 1366878848,
+  "sad": "1",
+  "sadornot": "1"
+}
+
+FILE: studentLifeDataset/EMA/response/Sleep/Sleep_u01.json
+Top-level type: <class 'list'>
+List length: 32
+
+First item:
+{
+  "null": "8",
+  "resp_time": 1364118413
+}
+
+FILE: studentLifeDataset/sensing/activity/activity_u01.csv
+Shape: (474862, 2)
+
+Columns:
+['timestamp', ' activity inference']
+
+Dtypes:
+timestamp              int64
+ activity inference    int64
+dtype: object
+
+Missing Values:
+timestamp              0
+ activity inference    0
+dtype: int64
+
+First Rows:
+    timestamp   activity inference
+0  1364356899                    0
+1  1364356901                    0
+2  1364356904                    0
+3  1364356906                    0
+4  1364356909                    0
+
+FILE: studentLifeDataset/sensing/conversation/conversation_u01.csv
+Shape: (2179, 2)
+
+Columns:
+['start_timestamp', ' end_timestamp']
+
+Dtypes:
+start_timestamp    int64
+ end_timestamp     int64
+dtype: object
+
+Missing Values:
+start_timestamp    0
+ end_timestamp     0
+dtype: int64
+
+First Rows:
+   start_timestamp   end_timestamp
+0       1364358643      1364359056
+1       1364388374      1364391419
+2       1364391630      1364392296
+3       1364393248      1364393510
+4       1364393720      1364395687
+
+FILE: studentLifeDataset/call_log/call_log_u01.csv
+Shape: (1487, 3)
+
+Columns:
+['id', 'device', 'timestamp']
+
+Dtypes:
+id           object
+device       object
+timestamp     int64
+dtype: object
+
+Missing Values:
+id           0
+device       0
+timestamp    0
+dtype: int64
+
+First Rows:
+                                         id                                device   timestamp
+0  9880c287-20a7-4256-af6e-15d670a4a8e8-106  83147b17-0754-41b9-a03a-b5a490c60372  1364099009
+1  95786df6-cdf4-4387-bdf6-eeb90e26c3c5-101  83147b17-0754-41b9-a03a-b5a490c60372  1364106209
+2   5462e033-fe6f-47c5-80ba-a72764ad9f80-18  83147b17-0754-41b9-a03a-b5a490c60372  1364095409
+3   3c43eb13-0668-45c7-90ba-3efed1feac8f-31  83147b17-0754-41b9-a03a-b5a490c60372  1364102609
+4   a81ef519-c9da-430b-ae4a-7273fbe47f17-55  83147b17-0754-41b9-a03a-b5a490c60372  1364109809
+
+FILE: studentLifeDataset/sms/sms_u01.csv
+Shape: (1487, 3)
+
+Columns:
+['id', 'device', 'timestamp']
+
+Dtypes:
+id           object
+device       object
+timestamp     int64
+dtype: object
+
+Missing Values:
+id           0
+device       0
+timestamp    0
+dtype: int64
+
+First Rows:
+                                         id                                device   timestamp
+0   9880c287-20a7-4256-af6e-15d670a4a8e8-95  83147b17-0754-41b9-a03a-b5a490c60372  1364099009
+1  95786df6-cdf4-4387-bdf6-eeb90e26c3c5-102  83147b17-0754-41b9-a03a-b5a490c60372  1364106209
+2   5462e033-fe6f-47c5-80ba-a72764ad9f80-17  83147b17-0754-41b9-a03a-b5a490c60372  1364095409
+3   3c43eb13-0668-45c7-90ba-3efed1feac8f-30  83147b17-0754-41b9-a03a-b5a490c60372  1364102609
+4   a81ef519-c9da-430b-ae4a-7273fbe47f17-56  83147b17-0754-41b9-a03a-b5a490c60372  1364109809
+
+FILE: studentLifeDataset/survey/PHQ-9.csv
+Shape: (84, 12)
+
+Columns:
+['uid', 'type', 'Little interest or pleasure in doing things', 'Feeling down, depressed, hopeless.', 'Trouble falling or staying asleep, or sleeping too much.', 'Feeling tired or having little energy', 'Poor appetite or overeating', 'Feeling bad about yourself or that you are a failure or have let yourself or your family down', 'Trouble concentrating on things, such as reading the newspaper or watching television', 'Moving or speaking so slowly that other people could have noticed. Or the opposite being so figety or restless that you have been moving around a lot more than usual', 'Thoughts that you would be better off dead, or of hurting yourself', 'Response']
+
+Dtypes:
+uid                                                                                                                                                                      object
+type                                                                                                                                                                     object
+Little interest or pleasure in doing things                                                                                                                              object
+Feeling down, depressed, hopeless.                                                                                                                                       object
+Trouble falling or staying asleep, or sleeping too much.                                                                                                                 object
+Feeling tired or having little energy                                                                                                                                    object
+Poor appetite or overeating                                                                                                                                              object
+Feeling bad about yourself or that you are a failure or have let yourself or your family down                                                                            object
+Trouble concentrating on things, such as reading the newspaper or watching television                                                                                    object
+Moving or speaking so slowly that other people could have noticed. Or the opposite being so figety or restless that you have been moving around a lot more than usual    object
+Thoughts that you would be better off dead, or of hurting yourself                                                                                                       object
+Response                                                                                                                                                                 object
+dtype: object
+
+Missing Values:
+uid                                                                                                                                                                      0
+type                                                                                                                                                                     0
+Little interest or pleasure in doing things                                                                                                                              0
+Feeling down, depressed, hopeless.                                                                                                                                       0
+Trouble falling or staying asleep, or sleeping too much.                                                                                                                 0
+Feeling tired or having little energy                                                                                                                                    0
+Poor appetite or overeating                                                                                                                                              0
+Feeling bad about yourself or that you are a failure or have let yourself or your family down                                                                            0
+Trouble concentrating on things, such as reading the newspaper or watching television                                                                                    0
+Moving or speaking so slowly that other people could have noticed. Or the opposite being so figety or restless that you have been moving around a lot more than usual    0
+Thoughts that you would be better off dead, or of hurting yourself                                                                                                       0
+Response                                                                                                                                                                 5
+dtype: int64
+
+First Rows:
+   uid  ...              Response
+0  u00  ...  Not difficult at all
+1  u01  ...        Very difficult
+2  u02  ...    Somewhat difficult
+3  u03  ...    Somewhat difficult
+4  u04  ...    Somewhat difficult
+
+[5 rows x 12 columns]
+
+================================================================================
+USER COVERAGE PER DATA SOURCE
+================================================================================
+
+Mood EMA
+  Num files/users: 49
+  Example files:
+    Mood_u00.json
+    Mood_u01.json
+    Mood_u02.json
+    Mood_u03.json
+    Mood_u04.json
+
+Sleep EMA
+  Num files/users: 49
+  Example files:
+    Sleep_u00.json
+    Sleep_u01.json
+    Sleep_u02.json
+    Sleep_u03.json
+    Sleep_u04.json
+
+Activity
+  Num files/users: 49
+  Example files:
+    activity_u00.csv
+    activity_u01.csv
+    activity_u02.csv
+    activity_u03.csv
+    activity_u04.csv
+
+Conversation
+  Num files/users: 49
+  Example files:
+    conversation_u00.csv
+    conversation_u01.csv
+    conversation_u02.csv
+    conversation_u03.csv
+    conversation_u04.csv
+
+Call Log
+  Num files/users: 49
+  Example files:
+    call_log_u00.csv
+    call_log_u01.csv
+    call_log_u02.csv
+    call_log_u03.csv
+    call_log_u04.csv
+
+SMS
+  Num files/users: 49
+  Example files:
+    sms_u00.csv
+    sms_u01.csv
+    sms_u02.csv
+    sms_u03.csv
+    sms_u04.csv
+
+================================================================================
+RECOMMENDED FEATURES FOR RL PIPELINE
+================================================================================
+
+LIKELY FEATURE SOURCES
+
+Mood:
+    EMA/response/Mood/
+
+Sleep:
+    EMA/response/Sleep/
+
+Activity:
+    sensing/activity/
+
+Social Interaction:
+    sensing/conversation/
+    call_log/
+    sms/
+
+OPTIONAL:
+    sensing/audio/
+    sensing/gps/
+    app_usage/
+
+IGNORE FOR NOW:
+    education/
+    calendar/
+    dining/
+    most event-specific EMA folders
+
+
+================================================================================
+DONE
+================================================================================
