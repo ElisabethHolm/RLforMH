@@ -1,2 +1,5 @@
 pandas==2.0.3
 numpy==1.24.4
+torch
+d3rlpy
+scikit-learn
