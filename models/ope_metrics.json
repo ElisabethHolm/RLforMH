@@ -1,0 +1,38 @@
+{
+  "notes": "PDIS = Per-Decision IS using behavior_cloning_logistic as logging policy. IS weights clipped at 5.0. epsilon=0.05 soft policy for deterministic policies. DM = Direct Method using CQL Q(s0, pi(s0)), reported only for CQL. mood_improvement = mean next-day mood delta on matched-action steps.",
+  "gamma": 0.99,
+  "is_clip": 5.0,
+  "results": [
+    {
+      "policy": "cql",
+      "pdis_estimate": 0.0,
+      "mood_improvement": 0.0,
+      "direct_method_v0": -0.004356
+    },
+    {
+      "policy": "random_uniform",
+      "pdis_estimate": 0.0,
+      "mood_improvement": 0.013333
+    },
+    {
+      "policy": "majority_action",
+      "pdis_estimate": 0.0,
+      "mood_improvement": 0.008696
+    },
+    {
+      "policy": "action_frequency",
+      "pdis_estimate": 0.0,
+      "mood_improvement": -0.046875
+    },
+    {
+      "policy": "behavior_cloning_logistic",
+      "pdis_estimate": 0.0,
+      "mood_improvement": 0.0
+    },
+    {
+      "policy": "rule_based",
+      "pdis_estimate": 0.0,
+      "mood_improvement": 0.0
+    }
+  ]
+}
