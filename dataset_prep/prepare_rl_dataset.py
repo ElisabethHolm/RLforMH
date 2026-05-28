@@ -30,7 +30,9 @@ META_COLUMNS = [
     "episode_id",
     "action",
     "action_name",
-    "reward",
+    "reward_sparse",
+    "reward_dense",
+    "reward_observed_only",
     "done",
 ]
 
