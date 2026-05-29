@@ -1,0 +1,1794 @@
+{
+  "notes": "DQN / Double DQN grid search over StudentLife reward variants. Built-in metrics (td_error, action_match, value) computed on the val split; OPE (pdis, mood_improvement, direct_method_v0) computed on val with a behavior-cloning logging policy. Best config per variant = max PDIS. reward_sparse / reward_observed_only are NaN on most rows and filled with 0, so their PDIS can be near-degenerate.",
+  "n_steps": 5000,
+  "n_steps_per_epoch": 5000,
+  "gamma": 0.99,
+  "seed": 42,
+  "generated_at": "2026-05-28T21:17:59",
+  "results": [
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.22264268959019387,
+      "action_match": 0.16776315789473684,
+      "value": 0.441437590818264,
+      "loss": 0.009083117755182321,
+      "pdis": 0.01152795975760174,
+      "mood_improvement": 0.5000000099341074,
+      "direct_method_v0": 0.44500136612491176
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.41200108014704173,
+      "action_match": 0.13486842105263158,
+      "value": 0.7288682834294281,
+      "loss": 0.006025334071432007,
+      "pdis": 0.01153078018173002,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.6925357573411681
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.22428707635927125,
+      "action_match": 0.12828947368421054,
+      "value": 0.244587094290182,
+      "loss": 0.007567071182356449,
+      "pdis": -1.2611080142916272e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.24097551981156523
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.26451844611265257,
+      "action_match": 0.13157894736842105,
+      "value": 0.23117411011633904,
+      "loss": 0.002466220921936474,
+      "pdis": 0.011527988545542038,
+      "mood_improvement": 1.0000000149011612,
+      "direct_method_v0": 0.20046741151335565
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2431747214247222,
+      "action_match": 0.15789473684210525,
+      "value": 0.49878538841087566,
+      "loss": 0.008354869941249489,
+      "pdis": 0.01152849924077234,
+      "mood_improvement": 0.7142857228006635,
+      "direct_method_v0": 0.5049548680809411
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.4785305425843914,
+      "action_match": 0.16776315789473684,
+      "value": 0.8240920788559475,
+      "loss": 0.004767970215709647,
+      "pdis": 0.011530784144229575,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.7724253752014854
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.23646570673882444,
+      "action_match": 0.1118421052631579,
+      "value": 0.25665117697300094,
+      "loss": 0.006461094674526248,
+      "pdis": -1.2611080142916272e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.24720866029912775
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.26653331528347285,
+      "action_match": 0.15789473684210525,
+      "value": 0.23305108098889163,
+      "loss": 0.0017882563988696348,
+      "pdis": 0.011527988547099455,
+      "mood_improvement": 1.0000000149011612,
+      "direct_method_v0": 0.20636803428219122
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20986310387068227,
+      "action_match": 0.14144736842105263,
+      "value": 0.3924640754335805,
+      "loss": 0.01001895395910833,
+      "pdis": 5.006526219097381e-05,
+      "mood_improvement": 1.1111111243565877,
+      "direct_method_v0": 0.40205918523398315
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.30426572435479365,
+      "action_match": 0.17105263157894737,
+      "value": 0.5716120022300043,
+      "loss": 0.006347991862060735,
+      "pdis": 0.011528499199699527,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.5494887412271716
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2106274860328809,
+      "action_match": 0.13157894736842105,
+      "value": 0.22142847448489383,
+      "loss": 0.008824064115283544,
+      "pdis": -1.0330091427837946e-05,
+      "mood_improvement": 1.6666666865348816,
+      "direct_method_v0": 0.2273160298778252
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.25797573201557683,
+      "action_match": 0.16776315789473684,
+      "value": 0.23265157825632118,
+      "loss": 0.003615899573270872,
+      "pdis": 0.011528528028835222,
+      "mood_improvement": 1.2000000119209289,
+      "direct_method_v0": 0.2106604780578478
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.21496464196699527,
+      "action_match": 0.14802631578947367,
+      "value": 0.41519217065682534,
+      "loss": 0.00929119098521769,
+      "pdis": 4.778428191550203e-05,
+      "mood_improvement": 0.7500000149011612,
+      "direct_method_v0": 0.4209112762050195
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.35434258130675067,
+      "action_match": 0.16776315789473684,
+      "value": 0.6488709591917301,
+      "loss": 0.0053256273114006035,
+      "pdis": 0.011530784144229575,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.6177330328659578
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.21589670859394405,
+      "action_match": 0.13815789473684212,
+      "value": 0.23111436585895717,
+      "loss": 0.007989867996709654,
+      "pdis": -1.2611080142916272e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.23087690923024307
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.2613621680528276,
+      "action_match": 0.16447368421052633,
+      "value": 0.2362007248907742,
+      "loss": 0.0026913860628701514,
+      "pdis": 0.011527988545542038,
+      "mood_improvement": 1.0000000149011612,
+      "direct_method_v0": 0.20874752129682086
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2160609210409692,
+      "action_match": 0.16776315789473684,
+      "value": 0.38705912820602717,
+      "loss": 0.008811274177260929,
+      "pdis": 0.01152795975760174,
+      "mood_improvement": 0.5000000099341074,
+      "direct_method_v0": 0.39195464517582546
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.3610075322798666,
+      "action_match": 0.15460526315789475,
+      "value": 0.560936807654798,
+      "loss": 0.006381338713690638,
+      "pdis": 0.011530780179975001,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.5336689220910723
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2165819871991015,
+      "action_match": 0.08552631578947369,
+      "value": 0.17381350415464686,
+      "loss": 0.009407981615327299,
+      "pdis": -1.2611043887438354e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.17065145972777496
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.2846446718864976,
+      "action_match": 0.12171052631578948,
+      "value": 0.14657487676939987,
+      "loss": 0.00482178693319438,
+      "pdis": 4.7784200631011135e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.11011939254504713
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.23778888617457594,
+      "action_match": 0.1513157894736842,
+      "value": 0.42354882812421574,
+      "loss": 0.00807479823444737,
+      "pdis": 0.011527959757479157,
+      "mood_improvement": 0.5000000099341074,
+      "direct_method_v0": 0.43108218400315806
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.4295569257951093,
+      "action_match": 0.14802631578947367,
+      "value": 0.6315590536319896,
+      "loss": 0.005142491029319353,
+      "pdis": 0.011530784142474554,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.5922094078903849
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2295303905800654,
+      "action_match": 0.09868421052631579,
+      "value": 0.18306368635967374,
+      "loss": 0.00841142627352383,
+      "pdis": -1.2071560716839313e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.1783188826150515
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.2790142898906196,
+      "action_match": 0.14473684210526316,
+      "value": 0.15999661431583503,
+      "loss": 0.00356810152012622,
+      "pdis": -0.00025732790816181453,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.1304287831219633
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20702129131576016,
+      "action_match": 0.14144736842105263,
+      "value": 0.3548443813955313,
+      "loss": 0.0097791043833422,
+      "pdis": 5.0065263945994634e-05,
+      "mood_improvement": 1.1111111243565877,
+      "direct_method_v0": 0.3641783286902038
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.2896875569952553,
+      "action_match": 0.17763157894736842,
+      "value": 0.4626427928083821,
+      "loss": 0.00672774616323295,
+      "pdis": 0.011528499199699527,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.4405068460513245
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20444905170432515,
+      "action_match": 0.09868421052631579,
+      "value": 0.1600276503013447,
+      "loss": 0.010435500966093969,
+      "pdis": -1.2611071703309728e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.16598869860172272
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.27094789077105813,
+      "action_match": 0.12171052631578948,
+      "value": 0.1519526205024225,
+      "loss": 0.006082898912846577,
+      "pdis": 0.0034355215644382487,
+      "mood_improvement": 1.2000000119209289,
+      "direct_method_v0": 0.12044624311172149
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20875786636387628,
+      "action_match": 0.1513157894736842,
+      "value": 0.3691047404549624,
+      "loss": 0.009028999278671108,
+      "pdis": 4.775541113329765e-05,
+      "mood_improvement": 0.40000001192092893,
+      "direct_method_v0": 0.3731996925039725
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.33272298797395355,
+      "action_match": 0.1513157894736842,
+      "value": 0.5336652600059384,
+      "loss": 0.005753902149957139,
+      "pdis": 0.011528503162199081,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.5071439864960584
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20987024621262187,
+      "action_match": 0.10526315789473684,
+      "value": 0.1706457447848822,
+      "loss": 0.009696098327822983,
+      "pdis": -1.2611044010023136e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.17321703202006491
+    },
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.285019872896066,
+      "action_match": 0.14473684210526316,
+      "value": 0.17060931806420404,
+      "loss": 0.004817185933340806,
+      "pdis": -0.00025732790816181453,
+      "mood_improvement": 1.2500000149011612,
+      "direct_method_v0": 0.1340827093121003
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.1271102052754341,
+      "action_match": 0.17105263157894737,
+      "value": 0.7044473043397853,
+      "loss": 0.012270806515379809,
+      "pdis": 0.020230483652480553,
+      "mood_improvement": 1.1666666865348816,
+      "direct_method_v0": 0.6807820668274706
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.1362081581530562,
+      "action_match": 0.20065789473684212,
+      "value": 0.6063896599960955,
+      "loss": 0.0054213865680096205,
+      "pdis": 0.022530157921468463,
+      "mood_improvement": 0.5833333432674408,
+      "direct_method_v0": 0.5682383511554111
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.10324303557111698,
+      "action_match": 0.09868421052631579,
+      "value": 0.23608300181742953,
+      "loss": 0.005483821917732712,
+      "pdis": 0.017195890609117307,
+      "mood_improvement": 1.7777777910232544,
+      "direct_method_v0": 0.1848673244768923
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.10620554844108346,
+      "action_match": 0.1875,
+      "value": 0.19500584062112275,
+      "loss": 0.001480951390813425,
+      "pdis": 0.029473047130311,
+      "mood_improvement": 1.2666666746139525,
+      "direct_method_v0": 0.12698565520854158
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.12872988061011967,
+      "action_match": 0.17105263157894737,
+      "value": 0.6812567359914905,
+      "loss": 0.010902144517214038,
+      "pdis": 0.019742288198510906,
+      "mood_improvement": 0.6666666865348816,
+      "direct_method_v0": 0.6626089540394869
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.16062860550116392,
+      "action_match": 0.17763157894736842,
+      "value": 0.6951224808336088,
+      "loss": 0.004731093508010963,
+      "pdis": 0.0244811442991196,
+      "mood_improvement": 0.4,
+      "direct_method_v0": 0.6519891253926537
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.10948456708844773,
+      "action_match": 0.12828947368421054,
+      "value": 0.24296632983207114,
+      "loss": 0.0046396281555411405,
+      "pdis": 0.015533402066333293,
+      "mood_improvement": 1.6666666865348816,
+      "direct_method_v0": 0.18861600062386555
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.10485249259932686,
+      "action_match": 0.19407894736842105,
+      "value": 0.19602421690471697,
+      "loss": 0.0011438103398184467,
+      "pdis": 0.024186684510779412,
+      "mood_improvement": 1.0000000099341075,
+      "direct_method_v0": 0.13046261003579607
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.1448269666848544,
+      "action_match": 0.20065789473684212,
+      "value": 0.7897664630099347,
+      "loss": 0.01505472229940351,
+      "pdis": 0.020233407204720964,
+      "mood_improvement": 0.2083333432674408,
+      "direct_method_v0": 0.7646120854399421
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.12550642271401968,
+      "action_match": 0.22039473684210525,
+      "value": 0.5673072143997017,
+      "loss": 0.006302580838924041,
+      "pdis": 0.026694775082138553,
+      "mood_improvement": 0.5833333432674408,
+      "direct_method_v0": 0.5346633808856661
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.10068307017686393,
+      "action_match": 0.12171052631578948,
+      "value": 0.2433269884755933,
+      "loss": 0.007292810765863396,
+      "pdis": 0.018744086919575787,
+      "mood_improvement": 0.2777777910232544,
+      "direct_method_v0": 0.19933246838098223
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.10264612565915261,
+      "action_match": 0.17105263157894737,
+      "value": 0.19130086422381665,
+      "loss": 0.0021743493591915466,
+      "pdis": 0.03112066039892728,
+      "mood_improvement": 1.2000000119209289,
+      "direct_method_v0": 0.1296740098517727
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.13206247701347182,
+      "action_match": 0.17434210526315788,
+      "value": 0.7267773629803407,
+      "loss": 0.01307543641119264,
+      "pdis": 0.01932539278954777,
+      "mood_improvement": 0.3333333730697632,
+      "direct_method_v0": 0.6990427388386293
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.13294533948585732,
+      "action_match": 0.19736842105263158,
+      "value": 0.6152874263689706,
+      "loss": 0.005658281034836545,
+      "pdis": 0.023489446640022654,
+      "mood_improvement": 0.5,
+      "direct_method_v0": 0.5821977474472739
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.1022088263671508,
+      "action_match": 0.11513157894736842,
+      "value": 0.2421733127588308,
+      "loss": 0.006256063404469751,
+      "pdis": 0.019795116321258674,
+      "mood_improvement": 0.6111111243565878,
+      "direct_method_v0": 0.1935592299665917
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.1042333944955829,
+      "action_match": 0.19407894736842105,
+      "value": 0.19595430588493687,
+      "loss": 0.0017160326322009495,
+      "pdis": 0.03012673714508216,
+      "mood_improvement": 1.0000000099341075,
+      "direct_method_v0": 0.1290893544950946
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.11359392530784164,
+      "action_match": 0.1875,
+      "value": 0.6134186555680475,
+      "loss": 0.011104892346239648,
+      "pdis": 0.022202238501560476,
+      "mood_improvement": 0.4444444576899211,
+      "direct_method_v0": 0.5889961401169951
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.12092063855909287,
+      "action_match": 0.18421052631578946,
+      "value": 0.5053689533256387,
+      "loss": 0.005420817065006122,
+      "pdis": 0.03284290358371507,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.4648785274475813
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.09563514162794404,
+      "action_match": 0.12171052631578948,
+      "value": 0.15753628759595908,
+      "loss": 0.00579923778208904,
+      "pdis": 0.017763716308943866,
+      "mood_improvement": 1.7777777910232544,
+      "direct_method_v0": 0.11353151076896624
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.11983786297479894,
+      "action_match": 0.11513157894736842,
+      "value": 0.0959021946067591,
+      "loss": 0.003530192115099635,
+      "pdis": 0.019249696554431494,
+      "mood_improvement": 1.2000000119209289,
+      "direct_method_v0": 0.022830692754889078
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.11452216360951384,
+      "action_match": 0.18092105263157895,
+      "value": 0.5734614636258859,
+      "loss": 0.009544815665553324,
+      "pdis": 0.02167291773669984,
+      "mood_improvement": 1.1920928955078126e-08,
+      "direct_method_v0": 0.5531676652079279
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.13345967702893718,
+      "action_match": 0.21710526315789475,
+      "value": 0.5472390704396132,
+      "loss": 0.004673725706606638,
+      "pdis": 0.025280325474583788,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.5041665485636755
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.10228286584996045,
+      "action_match": 0.15789473684210525,
+      "value": 0.14846502858716504,
+      "loss": 0.005141532821545843,
+      "pdis": 0.014828813978504158,
+      "mood_improvement": 1.1666666865348816,
+      "direct_method_v0": 0.10114837251603603
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.12116083885210478,
+      "action_match": 0.10197368421052631,
+      "value": 0.11300327622302575,
+      "loss": 0.0029409867526963354,
+      "pdis": 0.022897764181775408,
+      "mood_improvement": 1.1666666865348816,
+      "direct_method_v0": 0.038591039324687285
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.1292343101061885,
+      "action_match": 0.19078947368421054,
+      "value": 0.7063243079342341,
+      "loss": 0.013615704743750394,
+      "pdis": 0.023633615637625525,
+      "mood_improvement": -0.7222222089767456,
+      "direct_method_v0": 0.6825705902142958
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.11460363572710514,
+      "action_match": 0.20394736842105263,
+      "value": 0.4908484586171414,
+      "loss": 0.006141942910559009,
+      "pdis": 0.028438462924041456,
+      "mood_improvement": 0.5833333432674408,
+      "direct_method_v0": 0.45548956671899016
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.09470610969481677,
+      "action_match": 0.12828947368421054,
+      "value": 0.16931483406867637,
+      "loss": 0.0071217100045760165,
+      "pdis": 0.017927899607754268,
+      "mood_improvement": -0.16666666666666666,
+      "direct_method_v0": 0.12734413629567082
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.12246263820895802,
+      "action_match": 0.09539473684210527,
+      "value": 0.10605266440420803,
+      "loss": 0.004359960423735902,
+      "pdis": 0.01943954894077336,
+      "mood_improvement": 1.2000000119209289,
+      "direct_method_v0": 0.025067479857666927
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.11872068771907887,
+      "action_match": 0.19078947368421054,
+      "value": 0.6415335726679156,
+      "loss": 0.011726557969907299,
+      "pdis": 0.023917437303939405,
+      "mood_improvement": 0.3333333730697632,
+      "direct_method_v0": 0.6185610903934999
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.12115687044486566,
+      "action_match": 0.21710526315789475,
+      "value": 0.5186792517963209,
+      "loss": 0.005418146781262476,
+      "pdis": 0.02360955077353957,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.4818988625298847
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.09397209209383335,
+      "action_match": 0.17763157894736842,
+      "value": 0.1515623235731925,
+      "loss": 0.006387672543770168,
+      "pdis": 0.0175242558348303,
+      "mood_improvement": 0.5666666746139526,
+      "direct_method_v0": 0.10711261045865038
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.11749684365010585,
+      "action_match": 0.10526315789473684,
+      "value": 0.095064211746304,
+      "loss": 0.003585362204629928,
+      "pdis": 0.019708334947170898,
+      "mood_improvement": 1.2000000119209289,
+      "direct_method_v0": 0.029322953259741717
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.22264268959019387,
+      "action_match": 0.16776315789473684,
+      "value": 0.441437590818264,
+      "loss": 0.009083117755182321,
+      "pdis": 0.01152795975760174,
+      "mood_improvement": 0.5000000099341074,
+      "direct_method_v0": 0.44500136612491176
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.41200108014704173,
+      "action_match": 0.13486842105263158,
+      "value": 0.7288682834294281,
+      "loss": 0.006025334071432007,
+      "pdis": 0.01153078018173002,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.6925357573411681
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.22428707635927125,
+      "action_match": 0.12828947368421054,
+      "value": 0.244587094290182,
+      "loss": 0.007567071182356449,
+      "pdis": -1.2611080142916272e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.24097551981156523
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.26451844611265257,
+      "action_match": 0.13157894736842105,
+      "value": 0.23117411011633904,
+      "loss": 0.002466220921936474,
+      "pdis": 0.011527988545542038,
+      "mood_improvement": 1.0000000149011612,
+      "direct_method_v0": 0.20046741151335565
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2431747214247222,
+      "action_match": 0.15789473684210525,
+      "value": 0.49878538841087566,
+      "loss": 0.008354869941249489,
+      "pdis": 0.01152849924077234,
+      "mood_improvement": 0.7142857228006635,
+      "direct_method_v0": 0.5049548680809411
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.4785305425843914,
+      "action_match": 0.16776315789473684,
+      "value": 0.8240920788559475,
+      "loss": 0.004767970215709647,
+      "pdis": 0.011530784144229575,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.7724253752014854
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.23646570673882444,
+      "action_match": 0.1118421052631579,
+      "value": 0.25665117697300094,
+      "loss": 0.006461094674526248,
+      "pdis": -1.2611080142916272e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.24720866029912775
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.26653331528347285,
+      "action_match": 0.15789473684210525,
+      "value": 0.23305108098889163,
+      "loss": 0.0017882563988696348,
+      "pdis": 0.011527988547099455,
+      "mood_improvement": 1.0000000149011612,
+      "direct_method_v0": 0.20636803428219122
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20986310387068227,
+      "action_match": 0.14144736842105263,
+      "value": 0.3924640754335805,
+      "loss": 0.01001895395910833,
+      "pdis": 5.006526219097381e-05,
+      "mood_improvement": 1.1111111243565877,
+      "direct_method_v0": 0.40205918523398315
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.30426572435479365,
+      "action_match": 0.17105263157894737,
+      "value": 0.5716120022300043,
+      "loss": 0.006347991862060735,
+      "pdis": 0.011528499199699527,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.5494887412271716
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2106274860328809,
+      "action_match": 0.13157894736842105,
+      "value": 0.22142847448489383,
+      "loss": 0.008824064115283544,
+      "pdis": -1.0330091427837946e-05,
+      "mood_improvement": 1.6666666865348816,
+      "direct_method_v0": 0.2273160298778252
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.25797573201557683,
+      "action_match": 0.16776315789473684,
+      "value": 0.23265157825632118,
+      "loss": 0.003615899573270872,
+      "pdis": 0.011528528028835222,
+      "mood_improvement": 1.2000000119209289,
+      "direct_method_v0": 0.2106604780578478
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.21496464196699527,
+      "action_match": 0.14802631578947367,
+      "value": 0.41519217065682534,
+      "loss": 0.00929119098521769,
+      "pdis": 4.778428191550203e-05,
+      "mood_improvement": 0.7500000149011612,
+      "direct_method_v0": 0.4209112762050195
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.35434258130675067,
+      "action_match": 0.16776315789473684,
+      "value": 0.6488709591917301,
+      "loss": 0.0053256273114006035,
+      "pdis": 0.011530784144229575,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.6177330328659578
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.21589670859394405,
+      "action_match": 0.13815789473684212,
+      "value": 0.23111436585895717,
+      "loss": 0.007989867996709654,
+      "pdis": -1.2611080142916272e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.23087690923024307
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.2613621680528276,
+      "action_match": 0.16447368421052633,
+      "value": 0.2362007248907742,
+      "loss": 0.0026913860628701514,
+      "pdis": 0.011527988545542038,
+      "mood_improvement": 1.0000000149011612,
+      "direct_method_v0": 0.20874752129682086
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2160609210409692,
+      "action_match": 0.16776315789473684,
+      "value": 0.38705912820602717,
+      "loss": 0.008811274177260929,
+      "pdis": 0.01152795975760174,
+      "mood_improvement": 0.5000000099341074,
+      "direct_method_v0": 0.39195464517582546
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.3610075322798666,
+      "action_match": 0.15460526315789475,
+      "value": 0.560936807654798,
+      "loss": 0.006381338713690638,
+      "pdis": 0.011530780179975001,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.5336689220910723
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2165819871991015,
+      "action_match": 0.08552631578947369,
+      "value": 0.17381350415464686,
+      "loss": 0.009407981615327299,
+      "pdis": -1.2611043887438354e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.17065145972777496
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.2846446718864976,
+      "action_match": 0.12171052631578948,
+      "value": 0.14657487676939987,
+      "loss": 0.00482178693319438,
+      "pdis": 4.7784200631011135e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.11011939254504713
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.23778888617457594,
+      "action_match": 0.1513157894736842,
+      "value": 0.42354882812421574,
+      "loss": 0.00807479823444737,
+      "pdis": 0.011527959757479157,
+      "mood_improvement": 0.5000000099341074,
+      "direct_method_v0": 0.43108218400315806
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.4295569257951093,
+      "action_match": 0.14802631578947367,
+      "value": 0.6315590536319896,
+      "loss": 0.005142491029319353,
+      "pdis": 0.011530784142474554,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.5922094078903849
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.2295303905800654,
+      "action_match": 0.09868421052631579,
+      "value": 0.18306368635967374,
+      "loss": 0.00841142627352383,
+      "pdis": -1.2071560716839313e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.1783188826150515
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.2790142898906196,
+      "action_match": 0.14473684210526316,
+      "value": 0.15999661431583503,
+      "loss": 0.00356810152012622,
+      "pdis": -0.00025732790816181453,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.1304287831219633
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20702129131576016,
+      "action_match": 0.14144736842105263,
+      "value": 0.3548443813955313,
+      "loss": 0.0097791043833422,
+      "pdis": 5.0065263945994634e-05,
+      "mood_improvement": 1.1111111243565877,
+      "direct_method_v0": 0.3641783286902038
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.2896875569952553,
+      "action_match": 0.17763157894736842,
+      "value": 0.4626427928083821,
+      "loss": 0.00672774616323295,
+      "pdis": 0.011528499199699527,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.4405068460513245
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20444905170432515,
+      "action_match": 0.09868421052631579,
+      "value": 0.1600276503013447,
+      "loss": 0.010435500966093969,
+      "pdis": -1.2611071703309728e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.16598869860172272
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 32,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.27094789077105813,
+      "action_match": 0.12171052631578948,
+      "value": 0.1519526205024225,
+      "loss": 0.006082898912846577,
+      "pdis": 0.0034355215644382487,
+      "mood_improvement": 1.2000000119209289,
+      "direct_method_v0": 0.12044624311172149
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20875786636387628,
+      "action_match": 0.1513157894736842,
+      "value": 0.3691047404549624,
+      "loss": 0.009028999278671108,
+      "pdis": 4.775541113329765e-05,
+      "mood_improvement": 0.40000001192092893,
+      "direct_method_v0": 0.3731996925039725
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.33272298797395355,
+      "action_match": 0.1513157894736842,
+      "value": 0.5336652600059384,
+      "loss": 0.005753902149957139,
+      "pdis": 0.011528503162199081,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.5071439864960584
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        64,
+        64
+      ],
+      "td_error": 0.20987024621262187,
+      "action_match": 0.10526315789473684,
+      "value": 0.1706457447848822,
+      "loss": 0.009696098327822983,
+      "pdis": -1.2611044010023136e-05,
+      "mood_improvement": 1.0000000198682149,
+      "direct_method_v0": 0.17321703202006491
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "learning_rate": 6.25e-05,
+      "batch_size": 64,
+      "target_update_interval": 8000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.285019872896066,
+      "action_match": 0.14473684210526316,
+      "value": 0.17060931806420404,
+      "loss": 0.004817185933340806,
+      "pdis": -0.00025732790816181453,
+      "mood_improvement": 1.2500000149011612,
+      "direct_method_v0": 0.1340827093121003
+    }
+  ],
+  "best_per_variant": {
+    "reward_sparse": {
+      "reward_variant": "reward_sparse",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.4785305425843914,
+      "action_match": 0.16776315789473684,
+      "value": 0.8240920788559475,
+      "loss": 0.004767970215709647,
+      "pdis": 0.011530784144229575,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.7724253752014854
+    },
+    "reward_dense": {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.12092063855909287,
+      "action_match": 0.18421052631578946,
+      "value": 0.5053689533256387,
+      "loss": 0.005420817065006122,
+      "pdis": 0.03284290358371507,
+      "mood_improvement": 0.4666666746139526,
+      "direct_method_v0": 0.4648785274475813
+    },
+    "reward_observed_only": {
+      "reward_variant": "reward_observed_only",
+      "algo": "dqn",
+      "learning_rate": 0.0001,
+      "batch_size": 64,
+      "target_update_interval": 1000,
+      "hidden_units": [
+        256,
+        256
+      ],
+      "td_error": 0.4785305425843914,
+      "action_match": 0.16776315789473684,
+      "value": 0.8240920788559475,
+      "loss": 0.004767970215709647,
+      "pdis": 0.011530784144229575,
+      "mood_improvement": 0.3888888955116272,
+      "direct_method_v0": 0.7724253752014854
+    }
+  }
+}
