@@ -1,6 +1,6 @@
 {
   "notes": "Saved best DQN / Double DQN model evaluation. WPDIS/WIS/DR are diagnostic robustness checks for the PDIS-selected models.",
-  "generated_at": "2026-05-30T12:35:58",
+  "generated_at": "2026-05-30T12:44:24",
   "source_results_json": "/Users/AlfredYu/RLforMH/models/dqn_hparam_search_results.json",
   "gamma": 0.99,
   "seed": 42,
@@ -17,6 +17,8 @@
           256,
           256
         ],
+        "num_rows": 2436,
+        "num_episodes": 76,
         "td_error": 0.04001464413597843,
         "action_match": 0.18185550082101806,
         "value": 0.5982761624252365,
@@ -43,6 +45,8 @@
           256,
           256
         ],
+        "num_rows": 304,
+        "num_episodes": 44,
         "td_error": 0.4785305425843914,
         "action_match": 0.16776315789473684,
         "value": 0.8240920788559475,
@@ -69,6 +73,8 @@
           256,
           256
         ],
+        "num_rows": 305,
+        "num_episodes": 45,
         "td_error": 0.31079923767609907,
         "action_match": 0.13114754098360656,
         "value": 0.7766030185535305,
@@ -97,6 +103,8 @@
           256,
           256
         ],
+        "num_rows": 2436,
+        "num_episodes": 76,
         "td_error": 0.016381790685551595,
         "action_match": 0.23809523809523808,
         "value": 0.40313942592907603,
@@ -123,6 +131,8 @@
           256,
           256
         ],
+        "num_rows": 304,
+        "num_episodes": 44,
         "td_error": 0.12092063855909287,
         "action_match": 0.18421052631578946,
         "value": 0.5053689533256387,
@@ -149,6 +159,8 @@
           256,
           256
         ],
+        "num_rows": 305,
+        "num_episodes": 45,
         "td_error": 0.09326263126874275,
         "action_match": 0.2,
         "value": 0.4835607986530808,
@@ -177,6 +189,8 @@
           256,
           256
         ],
+        "num_rows": 2436,
+        "num_episodes": 76,
         "td_error": 0.04001464413597843,
         "action_match": 0.18185550082101806,
         "value": 0.5982761624252365,
@@ -203,6 +217,8 @@
           256,
           256
         ],
+        "num_rows": 304,
+        "num_episodes": 44,
         "td_error": 0.4785305425843914,
         "action_match": 0.16776315789473684,
         "value": 0.8240920788559475,
@@ -229,6 +245,8 @@
           256,
           256
         ],
+        "num_rows": 305,
+        "num_episodes": 45,
         "td_error": 0.31079923767609907,
         "action_match": 0.13114754098360656,
         "value": 0.7766030185535305,

@@ -192,6 +192,47 @@ PDIS, weighted PDIS, and DR on the hold-out split, the offline evidence is
 stronger. If only one estimator is positive, the conclusion should stay
 conservative.
 
+### Subgroup Policy Analysis
+
+```bash
+python algorithms/evaluate_dqn_models.py \
+  --reward-variants reward_dense \
+  --subgroup-analysis \
+  --student-analysis
+```
+
+This adds state-conditioned diagnostics for the saved best DQN / Double DQN
+models. The goal is to check whether a policy behaves sensibly for different
+student states instead of only looking at aggregate OPE.
+
+The subgroup analysis is derived from columns already present in
+`final_datasets/`:
+
+- mood observed vs missing, plus low/high observed mood
+- low vs normal sleep from `sleep_z`
+- low/high activity from `activity_z`
+- low/high social signal from `social_z`
+- weekday vs weekend from `date`
+- early vs late term from each student's date rank
+
+Outputs are saved to:
+
+- `models/dqn_subgroup_policy_analysis.json`
+- `models/dqn_subgroup_policy_analysis.csv`
+- `models/dqn_student_policy_analysis.csv`
+
+Reported subgroup metrics include policy/logged action distributions, action
+match, dominant action, action-collapse flags, recommendation rates for sleep,
+activity, and social actions, plus PDIS, weighted PDIS, trajectory WIS, DR, ESS,
+mood improvement, and direct-method value where support allows.
+
+These are diagnostic, not causal subgroup effects. Useful checks include whether
+low-sleep rows receive more `increase_sleep` recommendations, whether low-social
+rows receive more `increase_social` recommendations, whether mood-missing rows
+collapse to one action, and whether particular students have weak support or poor
+estimated outcomes. Stress is not currently in the transition files, so
+high/low-stress subgroup analysis would require a separate data-prep change.
+
 Current best validation results are summarized below:
 
 | Reward variant | Best model | Selection metric | Matched mood improvement | Action match |
