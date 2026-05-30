@@ -261,6 +261,183 @@ def compute_pdis_estimate(
     # -----------------------------------------------------------------------
 
 
+def _importance_ratios(episode: dict, eval_policy, behavior_policy) -> np.ndarray:
+    """Return per-step pi_eval(a_t|s_t) / pi_behavior(a_t|s_t)."""
+    eval_probs = eval_policy.action_probs(episode["states"])
+    behavior_probs = behavior_policy.action_probs(episode["states"])
+    actions = episode["actions"]
+    idx = np.arange(actions.shape[0])
+    return eval_probs[idx, actions] / (behavior_probs[idx, actions] + 1e-10)
+
+
+def _weighted_mean(values: np.ndarray, weights: np.ndarray) -> float:
+    denom = float(np.sum(weights))
+    if denom <= 0.0:
+        return float("nan")
+    return float(np.sum(weights * values) / denom)
+
+
+def compute_importance_weight_diagnostics(
+    episodes: list,
+    eval_policy,
+    behavior_policy,
+    clip: float = IS_CLIP,
+) -> dict:
+    """Summarize final trajectory weights for variance/support diagnostics."""
+    weights = []
+    nonzero = 0
+    for episode in episodes:
+        ratios = _importance_ratios(episode, eval_policy, behavior_policy)
+        weight = float(np.clip(np.prod(ratios), 0.0, clip))
+        weights.append(weight)
+        if weight > 0.0:
+            nonzero += 1
+
+    weights = np.asarray(weights, dtype="float64")
+    weight_sq_sum = float(np.sum(weights**2))
+    ess = (
+        float((np.sum(weights) ** 2) / weight_sq_sum)
+        if weight_sq_sum > 0.0
+        else 0.0
+    )
+    return {
+        "effective_sample_size": ess,
+        "weight_mean": float(np.mean(weights)) if len(weights) else float("nan"),
+        "weight_max": float(np.max(weights)) if len(weights) else float("nan"),
+        "nonzero_weight_episodes": nonzero,
+        "num_episodes": int(len(weights)),
+    }
+
+
+def compute_trajectory_is_estimate(
+    episodes: list,
+    eval_policy,
+    behavior_policy,
+    gamma: float = GAMMA,
+    clip: float = IS_CLIP,
+) -> float:
+    """
+    Full-trajectory importance sampling estimate.
+
+    This is mainly diagnostic: multiplying ratios across an entire episode can
+    have high variance when the learned policy has limited logged-action support.
+    """
+    returns = []
+    for episode in episodes:
+        ratios = _importance_ratios(episode, eval_policy, behavior_policy)
+        weight = float(np.clip(np.prod(ratios), 0.0, clip))
+        returns.append(weight * compute_discounted_return(episode["rewards"], gamma))
+    return float(np.mean(returns)) if returns else float("nan")
+
+
+def compute_weighted_is_estimate(
+    episodes: list,
+    eval_policy,
+    behavior_policy,
+    gamma: float = GAMMA,
+    clip: float = IS_CLIP,
+) -> float:
+    """Self-normalized full-trajectory IS estimate."""
+    returns = []
+    weights = []
+    for episode in episodes:
+        ratios = _importance_ratios(episode, eval_policy, behavior_policy)
+        weights.append(float(np.clip(np.prod(ratios), 0.0, clip)))
+        returns.append(compute_discounted_return(episode["rewards"], gamma))
+    if not returns:
+        return float("nan")
+    return _weighted_mean(
+        np.asarray(returns, dtype="float64"),
+        np.asarray(weights, dtype="float64"),
+    )
+
+
+def compute_weighted_pdis_estimate(
+    episodes: list,
+    eval_policy,
+    behavior_policy,
+    gamma: float = GAMMA,
+    clip: float = IS_CLIP,
+) -> float:
+    """
+    Self-normalized per-decision IS on the same per-step scale as PDIS.
+
+    For each timestep t, cumulative weights are normalized across episodes that
+    have a t-th transition, then the per-timestep estimates are averaged with the
+    same step-count weighting as the existing PDIS implementation.
+    """
+    if not episodes:
+        return float("nan")
+
+    max_t = max(ep["T"] for ep in episodes)
+    total_steps = sum(ep["T"] for ep in episodes)
+    weighted_terms = []
+
+    for t in range(max_t):
+        weights = []
+        rewards = []
+        for episode in episodes:
+            if episode["T"] <= t:
+                continue
+            ratios = _importance_ratios(episode, eval_policy, behavior_policy)
+            weights.append(float(np.clip(np.prod(ratios[: t + 1]), 0.0, clip)))
+            rewards.append(float(episode["rewards"][t]))
+
+        weights = np.asarray(weights, dtype="float64")
+        rewards = np.asarray(rewards, dtype="float64")
+        if len(rewards) == 0 or np.sum(weights) <= 0.0:
+            continue
+
+        timestep_value = (gamma**t) * _weighted_mean(rewards, weights)
+        weighted_terms.append(timestep_value * (len(rewards) / total_steps))
+
+    return float(np.sum(weighted_terms)) if weighted_terms else float("nan")
+
+
+def compute_doubly_robust_estimate(
+    episodes: list,
+    eval_policy,
+    behavior_policy,
+    gamma: float = GAMMA,
+    clip: float = IS_CLIP,
+) -> float:
+    """
+    Sequential doubly robust estimate using the policy's Q-function.
+
+    Requires eval_policy.q_values(states). DR is useful as a sensitivity check,
+    but it inherits bias when learned Q-values are optimistic.
+    """
+    estimates = []
+    for episode in episodes:
+        states = episode["states"]
+        actions = episode["actions"]
+        rewards = episode["rewards"]
+        T = episode["T"]
+
+        eval_probs = eval_policy.action_probs(states)
+        behavior_probs = behavior_policy.action_probs(states)
+        q_values = eval_policy.q_values(states)
+        v_values = np.sum(eval_probs * q_values, axis=1)
+
+        ratios = eval_probs[np.arange(T), actions] / (
+            behavior_probs[np.arange(T), actions] + 1e-10
+        )
+        cumulative_weights = np.clip(np.cumprod(ratios), 0.0, clip)
+
+        estimate = float(v_values[0]) if T else 0.0
+        for t in range(T):
+            next_v = float(v_values[t + 1]) if t + 1 < T else 0.0
+            bellman_residual = (
+                float(rewards[t])
+                + gamma * next_v
+                - float(q_values[t, actions[t]])
+            )
+            estimate += (gamma**t) * float(cumulative_weights[t]) * bellman_residual
+        estimates.append(estimate)
+
+    return float(np.mean(estimates)) if estimates else float("nan")
+
+
 def compute_direct_method(
     episodes:   list,
     cql_policy: CQLPolicyWrapper,
@@ -338,33 +515,61 @@ def evaluate_all(
     results = []
     for policy in policies:
         print(f"  Evaluating {policy.name} ...")
-        pdis     = compute_pdis_estimate(episodes, policy, behavior_policy)
+        pdis = compute_pdis_estimate(episodes, policy, behavior_policy)
+        trajectory_is = compute_trajectory_is_estimate(episodes, policy, behavior_policy)
+        trajectory_wis = compute_weighted_is_estimate(episodes, policy, behavior_policy)
+        weighted_pdis = compute_weighted_pdis_estimate(episodes, policy, behavior_policy)
+        weight_diagnostics = compute_importance_weight_diagnostics(
+            episodes, policy, behavior_policy
+        )
         mood_imp = compute_mood_improvement(episodes, policy)
-        result   = {
-            "policy":           policy.name,
-            "pdis_estimate":    round(float(pdis),     6) if not np.isnan(pdis)     else None,
-            "mood_improvement": round(float(mood_imp), 6) if not np.isnan(mood_imp) else None,
+        result = {
+            "policy": policy.name,
+            "pdis_estimate": _round_or_none(pdis),
+            "trajectory_is": _round_or_none(trajectory_is),
+            "trajectory_wis": _round_or_none(trajectory_wis),
+            "weighted_pdis": _round_or_none(weighted_pdis),
+            "effective_sample_size": _round_or_none(
+                weight_diagnostics["effective_sample_size"]
+            ),
+            "weight_max": _round_or_none(weight_diagnostics["weight_max"]),
+            "mood_improvement": _round_or_none(mood_imp),
         }
         if policy.name == "cql":
             dm = compute_direct_method(episodes, cql_policy)
-            result["direct_method_v0"] = round(float(dm), 6) if not np.isnan(dm) else None
+            dr = compute_doubly_robust_estimate(episodes, cql_policy, behavior_policy)
+            result["direct_method_v0"] = _round_or_none(dm)
+            result["dr"] = _round_or_none(dr)
         results.append(result)
     return results
 
 
+def _round_or_none(value: float, ndigits: int = 6):
+    return round(float(value), ndigits) if np.isfinite(value) else None
+
+
 def print_results(results: list) -> None:
     col = 30
-    print(f"\n{'Policy':<{col}} {'PDIS':>12} {'Mood Δ':>10} {'DM V(s0)':>12}")
-    print("-" * (col + 36))
+    print(
+        f"\n{'Policy':<{col}} {'PDIS':>12} {'WPDIS':>12} "
+        f"{'Traj WIS':>12} {'DR':>12} {'Mood Δ':>10} {'DM V(s0)':>12}"
+    )
+    print("-" * (col + 84))
     for r in results:
         pdis_s = f"{r['pdis_estimate']:>12.4f}"   if r["pdis_estimate"]    is not None else f"{'N/A':>12}"
+        wpdis_s = f"{r['weighted_pdis']:>12.4f}" if r["weighted_pdis"] is not None else f"{'N/A':>12}"
+        wis_s = f"{r['trajectory_wis']:>12.4f}" if r["trajectory_wis"] is not None else f"{'N/A':>12}"
+        dr_s = f"{r['dr']:>12.4f}" if r.get("dr") is not None else f"{'—':>12}"
         mood_s = f"{r['mood_improvement']:>10.4f}" if r["mood_improvement"] is not None else f"{'N/A':>10}"
         dm_s   = (
             f"{r['direct_method_v0']:>12.4f}"
             if r.get("direct_method_v0") is not None
             else f"{'—':>12}"
         )
-        print(f"{r['policy']:<{col}} {pdis_s} {mood_s} {dm_s}")
+        print(
+            f"{r['policy']:<{col}} {pdis_s} {wpdis_s} {wis_s} "
+            f"{dr_s} {mood_s} {dm_s}"
+        )
 
 
 def save_results(results: list, path: Path = OUT_PATH) -> None:
@@ -373,6 +578,8 @@ def save_results(results: list, path: Path = OUT_PATH) -> None:
         "notes": (
             "PDIS = Per-Decision IS using behavior_cloning_logistic as logging policy. "
             f"IS weights clipped at {IS_CLIP}. epsilon={EPSILON} soft policy for deterministic policies. "
+            "WPDIS and trajectory_wis are self-normalized IS diagnostics. "
+            "DR = sequential doubly robust estimate, reported when Q-values are available. "
             "DM = Direct Method using CQL Q(s0, pi(s0)), reported only for CQL. "
             "mood_improvement = mean next-day mood delta on matched-action steps."
         ),

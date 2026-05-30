@@ -10,6 +10,7 @@ splits in final_datasets/. Each config is evaluated two ways:
   B) the project's offline policy evaluation (OPE):
      - PDIS (per-decision importance sampling) against a behavior-cloning
        logging policy fit on the train split
+     - weighted/self-normalized IS variants and doubly robust OPE diagnostics
      - matched-action next-day mood improvement
      - direct-method V(s0) = mean over episodes of max_a Q(s0, a)
 
@@ -57,7 +58,12 @@ from evaluate_policies import (  # noqa: E402
     EPSILON,
     GAMMA,
     N_ACTIONS,
+    compute_doubly_robust_estimate,
+    compute_importance_weight_diagnostics,
     compute_pdis_estimate,
+    compute_trajectory_is_estimate,
+    compute_weighted_is_estimate,
+    compute_weighted_pdis_estimate,
 )
 
 # Keep the d3rlpy console output quiet during the (potentially large) sweep.
@@ -331,7 +337,7 @@ def fit_behavior_policy(train_df: pd.DataFrame, seed: int) -> BehaviorPolicy:
 
 
 # ---------------------------------------------------------------------------
-# OPE estimators (PDIS is imported; these two are NaN-aware variants)
+# OPE estimators (IS/DR estimators are imported; these are NaN-aware variants)
 # ---------------------------------------------------------------------------
 
 
@@ -417,12 +423,31 @@ def train_and_eval(
     last_metrics = history[-1][1] if history else {}
 
     policy = DQNPolicyWrapper(model)
+    weight_diagnostics = compute_importance_weight_diagnostics(
+        val_episodes, policy, behavior_policy
+    )
     metrics = {
         "td_error": float(last_metrics.get("td_error", float("nan"))),
         "action_match": float(last_metrics.get("action_match", float("nan"))),
         "value": float(last_metrics.get("value", float("nan"))),
         "loss": float(last_metrics.get("loss", float("nan"))),
         "pdis": float(compute_pdis_estimate(val_episodes, policy, behavior_policy)),
+        "trajectory_is": float(
+            compute_trajectory_is_estimate(val_episodes, policy, behavior_policy)
+        ),
+        "trajectory_wis": float(
+            compute_weighted_is_estimate(val_episodes, policy, behavior_policy)
+        ),
+        "weighted_pdis": float(
+            compute_weighted_pdis_estimate(val_episodes, policy, behavior_policy)
+        ),
+        "dr": float(
+            compute_doubly_robust_estimate(val_episodes, policy, behavior_policy)
+        ),
+        "effective_sample_size": weight_diagnostics["effective_sample_size"],
+        "weight_mean": weight_diagnostics["weight_mean"],
+        "weight_max": weight_diagnostics["weight_max"],
+        "nonzero_weight_episodes": weight_diagnostics["nonzero_weight_episodes"],
         "mood_improvement": mood_improvement(val_episodes, policy),
         "direct_method_v0": direct_method_v0(val_episodes, policy),
     }
@@ -481,6 +506,8 @@ def run_search(args) -> dict:
             )
             print(
                 f"      pdis={metrics['pdis']:.4f} "
+                f"wpdis={metrics['weighted_pdis']:.4f} "
+                f"dr={metrics['dr']:.4f} "
                 f"mood_delta={metrics['mood_improvement']:.4f} "
                 f"action_match={metrics['action_match']:.4f} "
                 f"td_error={metrics['td_error']:.4f}"
@@ -543,10 +570,12 @@ def save_results(payload: dict, save_models: bool) -> None:
         "notes": (
             "DQN / Double DQN grid search over StudentLife reward variants. "
             "Built-in metrics (td_error, action_match, value) computed on the val "
-            "split; OPE (pdis, mood_improvement, direct_method_v0) computed on val "
-            "with a behavior-cloning logging policy. Best config per variant = max "
-            "PDIS. reward_sparse / reward_observed_only are NaN on most rows and "
-            "filled with 0, so their PDIS can be near-degenerate."
+            "split; OPE (pdis, weighted_pdis, trajectory_is, trajectory_wis, dr, "
+            "mood_improvement, direct_method_v0) computed on val with a "
+            "behavior-cloning logging policy. Best config per variant = max PDIS. "
+            "WPDIS/WIS/DR are diagnostic robustness checks, not the selection "
+            "metric. reward_sparse / reward_observed_only are NaN on most rows "
+            "and filled with 0, so their IS estimates can be near-degenerate."
         ),
         "n_steps": payload["n_steps"],
         "n_steps_per_epoch": payload["n_steps_per_epoch"],
@@ -581,18 +610,22 @@ def print_leaderboard(best_per_variant: dict) -> None:
     print("\n================ BEST CONFIG PER REWARD VARIANT ================")
     header = (
         f"{'reward variant':<22} {'algo':<11} {'lr':>9} {'bs':>4} "
-        f"{'tui':>6} {'hidden':>10} {'pdis':>9} {'mood Δ':>9} {'a-match':>8}"
+        f"{'tui':>6} {'hidden':>10} {'pdis':>9} {'wpdis':>9} "
+        f"{'dr':>9} {'mood Δ':>9} {'a-match':>8}"
     )
     print(header)
     print("-" * len(header))
     for variant, r in best_per_variant.items():
         hidden = "x".join(map(str, r["hidden_units"]))
         pdis = r["pdis"] if np.isfinite(r["pdis"]) else float("nan")
+        wpdis = r["weighted_pdis"] if np.isfinite(r["weighted_pdis"]) else float("nan")
+        dr = r["dr"] if np.isfinite(r["dr"]) else float("nan")
         mood = r["mood_improvement"] if np.isfinite(r["mood_improvement"]) else float("nan")
         print(
             f"{variant:<22} {r['algo']:<11} {r['learning_rate']:>9.2e} "
             f"{r['batch_size']:>4} {r['target_update_interval']:>6} {hidden:>10} "
-            f"{pdis:>9.4f} {mood:>9.4f} {r['action_match']:>8.4f}"
+            f"{pdis:>9.4f} {wpdis:>9.4f} {dr:>9.4f} "
+            f"{mood:>9.4f} {r['action_match']:>8.4f}"
         )
 
 

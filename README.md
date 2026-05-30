@@ -140,8 +140,9 @@ Each config is scored two ways on the validation split:
 - d3rlpy built-in offline metrics: TD error, discrete action match, average
   value estimation.
 - Offline policy evaluation (OPE): per-decision importance sampling (PDIS)
-  against a behavior-cloning logging policy, matched-action next-day mood
-  improvement, and a direct-method `V(s0)` estimate.
+  against a behavior-cloning logging policy, weighted/self-normalized IS
+  diagnostics, doubly robust (DR) OPE, matched-action next-day mood improvement,
+  and a direct-method `V(s0)` estimate.
 
 The best config per reward variant is chosen by PDIS. Full results are written
 to `models/dqn_hparam_search_results.json` and `models/dqn_hparam_search_results.csv`,
@@ -159,6 +160,37 @@ Useful flags:
 Note: PDIS for `reward_sparse` / `reward_observed_only` can be near-degenerate
 because almost every reward is `0`; this is expected, and is why the built-in
 metrics and mood improvement are logged alongside it.
+
+### Weighted IS and Doubly Robust OPE
+
+```bash
+python algorithms/evaluate_dqn_models.py
+```
+
+This evaluates the saved best DQN / Double DQN models on the
+`final_datasets/` train, validation, and test splits without rerunning the grid.
+It writes `models/dqn_saved_model_ope_metrics.json` and
+`models/dqn_saved_model_ope_metrics.csv`.
+
+The extra OPE metrics are robustness checks for the PDIS-selected models:
+
+- `pdis`: the existing per-decision IS estimate. Useful, but noisy when the
+  learned policy often disagrees with the logged action.
+- `weighted_pdis`: a self-normalized per-decision IS estimate. This usually
+  lowers variance, but can introduce bias.
+- `trajectory_wis`: trajectory-level weighted IS. This is mostly diagnostic
+  because full-trajectory weights can be unstable on small offline datasets.
+- `dr`: sequential doubly robust OPE using the learned Q-function. DR can be
+  more stable when either propensities or Q-values are good, but it can still be
+  biased if Q-values are optimistic.
+- `effective_sample_size` and `weight_max`: support/variance diagnostics. Low
+  effective sample size or high max weight means the estimate is driven by a
+  small amount of logged support.
+
+The practical interpretation is agreement-based: if Double DQN has positive
+PDIS, weighted PDIS, and DR on the hold-out split, the offline evidence is
+stronger. If only one estimator is positive, the conclusion should stay
+conservative.
 
 Current best validation results are summarized below:
 
