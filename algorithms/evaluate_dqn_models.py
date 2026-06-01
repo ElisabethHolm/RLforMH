@@ -51,6 +51,7 @@ from hyperparameter_search_dqn import (  # noqa: E402
     fit_behavior_policy,
     load_splits,
     mood_improvement,
+    train_and_eval,
 )
 
 
@@ -168,6 +169,25 @@ def parse_args():
         default=STUDENT_CSV,
         help="Path for per-student diagnostic CSV metrics.",
     )
+    parser.add_argument(
+        "--best-per-algo",
+        action="store_true",
+        help=(
+            "Evaluate the best validation-PDIS config for each algo (dqn, "
+            "double_dqn) separately instead of only the overall best model."
+        ),
+    )
+    parser.add_argument(
+        "--algos",
+        nargs="+",
+        default=["dqn", "double_dqn"],
+        help="Algos to include when --best-per-algo is set.",
+    )
+    parser.add_argument(
+        "--retrain-missing",
+        action="store_true",
+        help="Retrain configs whose per-algo checkpoint is missing.",
+    )
     return parser.parse_args()
 
 
@@ -176,6 +196,105 @@ def load_search_payload(path: Path) -> dict:
         raise FileNotFoundError(f"Missing DQN search results: {path}")
     with open(path) as f:
         return json.load(f)
+
+
+def _is_better_pdis(candidate: dict, incumbent: dict) -> bool:
+    c, i = candidate.get("pdis"), incumbent.get("pdis")
+    if c is None or (isinstance(c, float) and not np.isfinite(c)):
+        return False
+    if i is None or (isinstance(i, float) and not np.isfinite(i)):
+        return True
+    return c > i
+
+
+def best_configs_per_algo(payload: dict, reward_col: str, algos: list[str]) -> dict:
+    """Best validation-PDIS row per algo for one reward variant."""
+    best = {}
+    for row in payload["results"]:
+        if row["reward_variant"] != reward_col or row["algo"] not in algos:
+            continue
+        current = best.get(row["algo"])
+        if current is None or _is_better_pdis(row, current):
+            best[row["algo"]] = row
+    missing = sorted(set(algos) - set(best))
+    if missing:
+        raise ValueError(
+            f"No search results for algos={missing} on reward_variant={reward_col}"
+        )
+    return best
+
+
+def resolve_model_path(reward_col: str, algo: str, best_per_variant: dict) -> Path | None:
+    per_algo = MODEL_DIR / f"dqn_best_{reward_col}_{algo}.d3"
+    if per_algo.exists():
+        return per_algo
+    overall = best_per_variant.get(reward_col, {})
+    if overall.get("algo") == algo:
+        legacy = MODEL_DIR / f"dqn_best_{reward_col}.d3"
+        if legacy.exists():
+            return legacy
+    return None
+
+
+def ensure_model(
+    config: dict,
+    reward_col: str,
+    splits: dict,
+    behavior_policy,
+    payload: dict,
+    device: str,
+    seed: int,
+    retrain_missing: bool,
+):
+    algo = config["algo"]
+    model_path = resolve_model_path(reward_col, algo, payload["best_per_variant"])
+    train_ds = build_mdp_dataset(splits["train"], reward_col)
+    model = build_model(config, train_ds, device)
+
+    if model_path is not None:
+        model.load_model(str(model_path))
+        return model
+
+    if not retrain_missing:
+        raise FileNotFoundError(
+            f"Missing checkpoint for {reward_col}/{algo}. Re-run with "
+            f"--retrain-missing or retrain via hyperparameter_search_dqn.py."
+        )
+
+    n_steps = payload.get("n_steps", 5000)
+    n_steps_per_epoch = payload.get("n_steps_per_epoch", n_steps)
+    val_ds = build_mdp_dataset(splits["val"], reward_col)
+    val_episodes = extract_episodes(splits["val"], reward_col)
+    print(
+        f"Retraining {reward_col}/{algo} "
+        f"(lr={config['learning_rate']}, bs={config['batch_size']}, "
+        f"hidden={config['hidden_units']}) ..."
+    )
+    model, _ = train_and_eval(
+        algo,
+        config,
+        train_ds,
+        val_ds,
+        val_episodes,
+        behavior_policy,
+        n_steps,
+        n_steps_per_epoch,
+        device,
+        seed,
+    )
+    save_path = MODEL_DIR / f"dqn_best_{reward_col}_{algo}.d3"
+    model.save_model(str(save_path))
+    print(f"Saved retrained checkpoint -> {save_path}")
+    return model
+
+
+def action_rate_columns(model, split_df: pd.DataFrame) -> dict:
+    policy_actions = DQNPolicyWrapper(model).predict(state_matrix(split_df))
+    rates = action_distribution(policy_actions, "policy")
+    return {
+        f"action_{name}": rates[f"policy_action_rate_{name}"]
+        for name in ACTION_NAMES.values()
+    }
 
 
 def build_model(best_config: dict, train_ds, device: str):
@@ -476,7 +595,9 @@ def save_outputs(args, payload: dict, rows: list) -> None:
     args.output_json.parent.mkdir(parents=True, exist_ok=True)
     nested = {}
     for row in rows:
-        nested.setdefault(row["reward_variant"], {})[row["split"]] = row
+        nested.setdefault(row["reward_variant"], {}).setdefault(row["algo"], {})[
+            row["split"]
+        ] = row
 
     json_payload = {
         "notes": (
@@ -489,11 +610,33 @@ def save_outputs(args, payload: dict, rows: list) -> None:
         "seed": payload.get("seed"),
         "metrics": clean_for_json(nested),
     }
+
+    if args.output_json.exists():
+        with open(args.output_json) as f:
+            prior = json.load(f)
+        prior_metrics = prior.get("metrics", {})
+        for variant, algos in nested.items():
+            prior_metrics.setdefault(variant, {})
+            for algo, splits in algos.items():
+                prior_metrics[variant].setdefault(algo, {})
+                prior_metrics[variant][algo].update(splits)
+        json_payload["metrics"] = clean_for_json(prior_metrics)
+
     with open(args.output_json, "w") as f:
         json.dump(json_payload, f, indent=2)
 
     df = pd.DataFrame(rows)
     df["hidden_units"] = df["hidden_units"].apply(lambda h: "x".join(map(str, h)))
+
+    if args.output_csv.exists():
+        prior_df = pd.read_csv(args.output_csv)
+        key_cols = ["reward_variant", "algo", "split"]
+        prior_df = prior_df[
+            ~prior_df.set_index(key_cols).index.isin(df.set_index(key_cols).index)
+        ]
+        df = pd.concat([prior_df, df], ignore_index=True)
+
+    df = df.sort_values(["reward_variant", "algo", "split"]).reset_index(drop=True)
     df.to_csv(args.output_csv, index=False)
 
     print(f"\nSaved saved-model OPE metrics -> {args.output_json}")
@@ -617,65 +760,74 @@ def main() -> None:
     rows = []
     subgroup_rows = []
     student_rows = []
+    seed = payload.get("seed", 42)
 
     for reward_col in variants:
         if reward_col not in best_per_variant:
             raise ValueError(f"{reward_col} not found in best_per_variant")
 
-        best = best_per_variant[reward_col]
-        model_path = MODEL_DIR / f"dqn_best_{reward_col}.d3"
-        if not model_path.exists():
-            raise FileNotFoundError(f"Missing saved model: {model_path}")
+        if args.best_per_algo:
+            configs = list(best_configs_per_algo(payload, reward_col, args.algos).values())
+        else:
+            configs = [best_per_variant[reward_col]]
 
-        train_ds = build_mdp_dataset(splits["train"], reward_col)
-        model = build_model(best, train_ds, args.device)
-        model.load_model(str(model_path))
-
-        for split in args.splits:
-            split_df = splits[split]
-            metrics = evaluate_model_on_split(
-                model,
-                split_df,
+        for best in configs:
+            model = ensure_model(
+                best,
                 reward_col,
+                splits,
                 behavior_policy,
+                payload,
+                args.device,
+                seed,
+                args.retrain_missing,
             )
-            metadata = {
-                "reward_variant": reward_col,
-                "algo": best["algo"],
-                "split": split,
-                "learning_rate": best["learning_rate"],
-                "batch_size": best["batch_size"],
-                "target_update_interval": best["target_update_interval"],
-                "hidden_units": best["hidden_units"],
-            }
-            rows.append(
-                {
+
+            for split in args.splits:
+                split_df = splits[split]
+                metrics = evaluate_model_on_split(
+                    model,
+                    split_df,
+                    reward_col,
+                    behavior_policy,
+                )
+                metadata = {
+                    "reward_variant": reward_col,
+                    "algo": best["algo"],
+                    "split": split,
+                    "learning_rate": best["learning_rate"],
+                    "batch_size": best["batch_size"],
+                    "target_update_interval": best["target_update_interval"],
+                    "hidden_units": best["hidden_units"],
+                }
+                row = {
                     **metadata,
                     **metrics,
+                    **action_rate_columns(model, split_df),
                 }
-            )
+                rows.append(row)
 
-            if args.subgroup_analysis:
-                for subgroup_row in compute_subgroup_analysis(
-                    model,
-                    split_df,
-                    reward_col,
-                    split,
-                    behavior_policy,
-                    args,
-                ):
-                    subgroup_rows.append({**metadata, **subgroup_row})
+                if args.subgroup_analysis:
+                    for subgroup_row in compute_subgroup_analysis(
+                        model,
+                        split_df,
+                        reward_col,
+                        split,
+                        behavior_policy,
+                        args,
+                    ):
+                        subgroup_rows.append({**metadata, **subgroup_row})
 
-            if args.student_analysis:
-                for student_row in compute_student_analysis(
-                    model,
-                    split_df,
-                    reward_col,
-                    split,
-                    behavior_policy,
-                    args.min_subgroup_rows,
-                ):
-                    student_rows.append({**metadata, **student_row})
+                if args.student_analysis:
+                    for student_row in compute_student_analysis(
+                        model,
+                        split_df,
+                        reward_col,
+                        split,
+                        behavior_policy,
+                        args.min_subgroup_rows,
+                    ):
+                        student_rows.append({**metadata, **student_row})
 
     print_summary(rows)
     save_outputs(args, payload, rows)
