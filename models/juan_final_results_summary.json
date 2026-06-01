@@ -1,0 +1,34 @@
+{
+  "best_mood_improvement": {
+    "policy": "majority_action",
+    "value": 0.8,
+    "n_matched": 5
+  },
+  "best_pdis": {
+    "policy": "contextual_bandit",
+    "value": 0.016886
+  },
+  "key_finding": "BCQ and CQL achieve equal in-support mood improvement but behavior cloning outperforms both, suggesting action labels are learnable from state features alone under sparse reward",
+  "n_test_rows": 305,
+  "n_mood_observed": 22,
+  "reward_ablation": [
+    {
+      "reward_variant": "reward_sparse",
+      "pdis": -0.007473,
+      "mood_improvement": 0.115385,
+      "n_matched": 13
+    },
+    {
+      "reward_variant": "reward_dense",
+      "pdis": -0.006338,
+      "mood_improvement": 0.115385,
+      "n_matched": 13
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "pdis": -0.007473,
+      "mood_improvement": 0.115385,
+      "n_matched": 13
+    }
+  ]
+}

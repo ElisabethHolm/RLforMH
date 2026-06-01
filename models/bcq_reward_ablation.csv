@@ -1,0 +1,4 @@
+reward_variant,pdis,mood_improvement,n_matched
+reward_sparse,-0.007473,0.115385,13
+reward_dense,-0.006338,0.115385,13
+reward_observed_only,-0.007473,0.115385,13

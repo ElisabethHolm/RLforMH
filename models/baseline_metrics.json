@@ -1,0 +1,200 @@
+{
+  "split_sizes": {
+    "train": 2451,
+    "validation": 287,
+    "test": 364
+  },
+  "metrics": [
+    {
+      "name": "random_uniform",
+      "accuracy": 0.14982578397212543,
+      "macro_f1": 0.14536807386353173,
+      "weighted_f1": 0.15556521746968832,
+      "matched_logged_reward_mean": 0.007267441860465116,
+      "matched_logged_action_count": 43,
+      "num_examples": 287,
+      "action_distribution": {
+        "none": 0.14982578397212543,
+        "increase_activity": 0.1254355400696864,
+        "decrease_activity": 0.1289198606271777,
+        "increase_sleep": 0.17073170731707318,
+        "decrease_sleep": 0.1254355400696864,
+        "increase_social": 0.13937282229965156,
+        "decrease_social": 0.1602787456445993
+      },
+      "split": "validation"
+    },
+    {
+      "name": "majority_action",
+      "accuracy": 0.21951219512195122,
+      "macro_f1": 0.05142857142857143,
+      "weighted_f1": 0.07902439024390244,
+      "matched_logged_reward_mean": 0.0,
+      "matched_logged_action_count": 63,
+      "num_examples": 287,
+      "action_distribution": {
+        "none": 1.0,
+        "increase_activity": 0.0,
+        "decrease_activity": 0.0,
+        "increase_sleep": 0.0,
+        "decrease_sleep": 0.0,
+        "increase_social": 0.0,
+        "decrease_social": 0.0
+      },
+      "split": "validation"
+    },
+    {
+      "name": "action_frequency",
+      "accuracy": 0.16376306620209058,
+      "macro_f1": 0.13894078713596794,
+      "weighted_f1": 0.1526753493929599,
+      "matched_logged_reward_mean": -0.022340425531914895,
+      "matched_logged_action_count": 47,
+      "num_examples": 287,
+      "action_distribution": {
+        "none": 0.34843205574912894,
+        "increase_activity": 0.12195121951219512,
+        "decrease_activity": 0.156794425087108,
+        "increase_sleep": 0.08362369337979095,
+        "decrease_sleep": 0.07665505226480836,
+        "increase_social": 0.09407665505226481,
+        "decrease_social": 0.11846689895470383
+      },
+      "split": "validation"
+    },
+    {
+      "name": "behavior_cloning_logistic",
+      "accuracy": 0.8850174216027874,
+      "macro_f1": 0.881450407693619,
+      "weighted_f1": 0.8843095677670564,
+      "matched_logged_reward_mean": 0.020767716535433065,
+      "matched_logged_action_count": 254,
+      "num_examples": 287,
+      "action_distribution": {
+        "none": 0.2682926829268293,
+        "increase_activity": 0.13240418118466898,
+        "decrease_activity": 0.12195121951219512,
+        "increase_sleep": 0.15331010452961671,
+        "decrease_sleep": 0.14982578397212543,
+        "increase_social": 0.09407665505226481,
+        "decrease_social": 0.08013937282229965
+      },
+      "split": "validation"
+    },
+    {
+      "name": "rule_based_baseline",
+      "accuracy": 0.03484320557491289,
+      "macro_f1": 0.033407707875085936,
+      "weighted_f1": 0.03547965404066297,
+      "matched_logged_reward_mean": 0.0,
+      "matched_logged_action_count": 10,
+      "num_examples": 287,
+      "action_distribution": {
+        "none": 0.07317073170731707,
+        "increase_activity": 0.1289198606271777,
+        "decrease_activity": 0.10452961672473868,
+        "increase_sleep": 0.24390243902439024,
+        "decrease_sleep": 0.21951219512195122,
+        "increase_social": 0.13588850174216027,
+        "decrease_social": 0.09407665505226481
+      },
+      "split": "validation"
+    },
+    {
+      "name": "random_uniform",
+      "accuracy": 0.12637362637362637,
+      "macro_f1": 0.12102238629686382,
+      "weighted_f1": 0.13232501212304354,
+      "matched_logged_reward_mean": 0.0,
+      "matched_logged_action_count": 46,
+      "num_examples": 364,
+      "action_distribution": {
+        "none": 0.1620879120879121,
+        "increase_activity": 0.12362637362637363,
+        "decrease_activity": 0.14560439560439561,
+        "increase_sleep": 0.17582417582417584,
+        "decrease_sleep": 0.10989010989010989,
+        "increase_social": 0.1346153846153846,
+        "decrease_social": 0.14835164835164835
+      },
+      "split": "test"
+    },
+    {
+      "name": "majority_action",
+      "accuracy": 0.3159340659340659,
+      "macro_f1": 0.06859528780196839,
+      "weighted_f1": 0.15170111725435315,
+      "matched_logged_reward_mean": 0.0,
+      "matched_logged_action_count": 115,
+      "num_examples": 364,
+      "action_distribution": {
+        "none": 1.0,
+        "increase_activity": 0.0,
+        "decrease_activity": 0.0,
+        "increase_sleep": 0.0,
+        "decrease_sleep": 0.0,
+        "increase_social": 0.0,
+        "decrease_social": 0.0
+      },
+      "split": "test"
+    },
+    {
+      "name": "action_frequency",
+      "accuracy": 0.1978021978021978,
+      "macro_f1": 0.13432268178518744,
+      "weighted_f1": 0.19845940931382533,
+      "matched_logged_reward_mean": 0.0,
+      "matched_logged_action_count": 72,
+      "num_examples": 364,
+      "action_distribution": {
+        "none": 0.3598901098901099,
+        "increase_activity": 0.12637362637362637,
+        "decrease_activity": 0.1401098901098901,
+        "increase_sleep": 0.08241758241758242,
+        "decrease_sleep": 0.07967032967032966,
+        "increase_social": 0.0989010989010989,
+        "decrease_social": 0.11263736263736264
+      },
+      "split": "test"
+    },
+    {
+      "name": "behavior_cloning_logistic",
+      "accuracy": 0.8708791208791209,
+      "macro_f1": 0.8894347940756214,
+      "weighted_f1": 0.8718935355102355,
+      "matched_logged_reward_mean": 0.0,
+      "matched_logged_action_count": 317,
+      "num_examples": 364,
+      "action_distribution": {
+        "none": 0.34615384615384615,
+        "increase_activity": 0.15934065934065933,
+        "decrease_activity": 0.1620879120879121,
+        "increase_sleep": 0.0521978021978022,
+        "decrease_sleep": 0.04120879120879121,
+        "increase_social": 0.12912087912087913,
+        "decrease_social": 0.10989010989010989
+      },
+      "split": "test"
+    },
+    {
+      "name": "rule_based_baseline",
+      "accuracy": 0.08516483516483517,
+      "macro_f1": 0.05551892848468025,
+      "weighted_f1": 0.10629872920375713,
+      "matched_logged_reward_mean": 0.0,
+      "matched_logged_action_count": 31,
+      "num_examples": 364,
+      "action_distribution": {
+        "none": 0.17582417582417584,
+        "increase_activity": 0.13736263736263737,
+        "decrease_activity": 0.11263736263736264,
+        "increase_sleep": 0.1620879120879121,
+        "decrease_sleep": 0.09340659340659341,
+        "increase_social": 0.12637362637362637,
+        "decrease_social": 0.19230769230769232
+      },
+      "split": "test"
+    }
+  ],
+  "notes": "Baselines imitate logged inferred actions. matched_logged_reward_mean only averages rewards where the baseline chose the logged action; it is not an online causal estimate."
+}

@@ -1,0 +1,160 @@
+{
+  "notes": "DM/IPS/SNIPS/DR are one-step contextual-bandit OPE metrics. IPS/SNIPS/DR use a behavior-cloning logistic model as the logging policy, with clipped importance weights for variance control. Sparse and observed-only rewards may be identical after NaN rewards are filled with zero.",
+  "generated_at": "2026-05-28T21:28:15",
+  "model_type": "ridge",
+  "alpha": 1.0,
+  "seed": 42,
+  "max_importance_weight": 10.0,
+  "metrics": {
+    "reward_sparse": {
+      "validation": {
+        "reward_variant": "reward_sparse",
+        "split": "validation",
+        "dm_reward": 0.16739177703857422,
+        "ips_reward": -0.02185684523682829,
+        "snips_reward": -0.1323183747681437,
+        "dr_reward": 0.12743101040652088,
+        "matched_logged_reward_mean": -0.08638887852430344,
+        "matched_mood_improvement": 0.8333333730697632,
+        "matched_logged_action_count": 30,
+        "action_match": 0.09868421052631579,
+        "importance_weight_mean": 0.16518374923458048,
+        "importance_weight_max": 6.17866808102571,
+        "num_examples": 304,
+        "action_distribution": {
+          "none": 0.023026315789473683,
+          "increase_activity": 0.45723684210526316,
+          "decrease_activity": 0.06578947368421052,
+          "increase_sleep": 0.05592105263157895,
+          "decrease_sleep": 0.2236842105263158,
+          "increase_social": 0.0625,
+          "decrease_social": 0.1118421052631579
+        }
+      },
+      "test": {
+        "reward_variant": "reward_sparse",
+        "split": "test",
+        "dm_reward": 0.12039197236299515,
+        "ips_reward": -0.005404104746182958,
+        "snips_reward": -0.032483672570533716,
+        "dr_reward": 0.10335955000336923,
+        "matched_logged_reward_mean": -0.0610119067132473,
+        "matched_mood_improvement": 1.0,
+        "matched_logged_action_count": 24,
+        "action_match": 0.07868852459016394,
+        "importance_weight_mean": 0.16636372425096657,
+        "importance_weight_max": 7.616698644160088,
+        "num_examples": 305,
+        "action_distribution": {
+          "none": 0.02622950819672131,
+          "increase_activity": 0.5770491803278689,
+          "decrease_activity": 0.019672131147540985,
+          "increase_sleep": 0.036065573770491806,
+          "decrease_sleep": 0.19672131147540983,
+          "increase_social": 0.05901639344262295,
+          "decrease_social": 0.08524590163934426
+        }
+      }
+    },
+    "reward_dense": {
+      "validation": {
+        "reward_variant": "reward_dense",
+        "split": "validation",
+        "dm_reward": 0.13160233199596405,
+        "ips_reward": -0.012718037854337236,
+        "snips_reward": -0.0396909442097068,
+        "dr_reward": 0.1143508808959025,
+        "matched_logged_reward_mean": -0.020107856020331383,
+        "matched_mood_improvement": 0.8333333730697632,
+        "matched_logged_action_count": 54,
+        "action_match": 0.17763157894736842,
+        "importance_weight_mean": 0.3204266894519209,
+        "importance_weight_max": 10.0,
+        "num_examples": 304,
+        "action_distribution": {
+          "none": 0.33881578947368424,
+          "increase_activity": 0.21052631578947367,
+          "decrease_activity": 0.06907894736842106,
+          "increase_sleep": 0.046052631578947366,
+          "decrease_sleep": 0.19078947368421054,
+          "increase_social": 0.05921052631578947,
+          "decrease_social": 0.08552631578947369
+        }
+      },
+      "test": {
+        "reward_variant": "reward_dense",
+        "split": "test",
+        "dm_reward": 0.12105702608823776,
+        "ips_reward": 0.014971515148700522,
+        "snips_reward": 0.044283489530092236,
+        "dr_reward": 0.12105839466125819,
+        "matched_logged_reward_mean": 0.044376589357852936,
+        "matched_mood_improvement": null,
+        "matched_logged_action_count": 50,
+        "action_match": 0.16393442622950818,
+        "importance_weight_mean": 0.3380834552012175,
+        "importance_weight_max": 10.0,
+        "num_examples": 305,
+        "action_distribution": {
+          "none": 0.35737704918032787,
+          "increase_activity": 0.3016393442622951,
+          "decrease_activity": 0.01639344262295082,
+          "increase_sleep": 0.036065573770491806,
+          "decrease_sleep": 0.16065573770491803,
+          "increase_social": 0.05573770491803279,
+          "decrease_social": 0.07213114754098361
+        }
+      }
+    },
+    "reward_observed_only": {
+      "validation": {
+        "reward_variant": "reward_observed_only",
+        "split": "validation",
+        "dm_reward": 0.16739177703857422,
+        "ips_reward": -0.02185684523682829,
+        "snips_reward": -0.1323183747681437,
+        "dr_reward": 0.12743101040652088,
+        "matched_logged_reward_mean": -0.08638887852430344,
+        "matched_mood_improvement": 0.8333333730697632,
+        "matched_logged_action_count": 30,
+        "action_match": 0.09868421052631579,
+        "importance_weight_mean": 0.16518374923458048,
+        "importance_weight_max": 6.17866808102571,
+        "num_examples": 304,
+        "action_distribution": {
+          "none": 0.023026315789473683,
+          "increase_activity": 0.45723684210526316,
+          "decrease_activity": 0.06578947368421052,
+          "increase_sleep": 0.05592105263157895,
+          "decrease_sleep": 0.2236842105263158,
+          "increase_social": 0.0625,
+          "decrease_social": 0.1118421052631579
+        }
+      },
+      "test": {
+        "reward_variant": "reward_observed_only",
+        "split": "test",
+        "dm_reward": 0.12039197236299515,
+        "ips_reward": -0.005404104746182958,
+        "snips_reward": -0.032483672570533716,
+        "dr_reward": 0.10335955000336923,
+        "matched_logged_reward_mean": -0.0610119067132473,
+        "matched_mood_improvement": 1.0,
+        "matched_logged_action_count": 24,
+        "action_match": 0.07868852459016394,
+        "importance_weight_mean": 0.16636372425096657,
+        "importance_weight_max": 7.616698644160088,
+        "num_examples": 305,
+        "action_distribution": {
+          "none": 0.02622950819672131,
+          "increase_activity": 0.5770491803278689,
+          "decrease_activity": 0.019672131147540985,
+          "increase_sleep": 0.036065573770491806,
+          "decrease_sleep": 0.19672131147540983,
+          "increase_social": 0.05901639344262295,
+          "decrease_social": 0.08524590163934426
+        }
+      }
+    }
+  }
+}

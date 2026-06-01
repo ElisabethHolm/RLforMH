@@ -1,0 +1,144 @@
+================ REWARD DIAGNOSTICS ================
+
+Total rows: 3151
+Rows with observed mood: 213
+Observed mood fraction: 0.0676
+
+---------------- reward_sparse ----------------
+Valid rows: 188
+Valid fraction: 0.0597
+Nonzero rows: 79
+Nonzero fraction: 0.0251
+
+Statistics:
+count    188.000000
+mean       0.073540
+std        0.851451
+min       -4.166667
+25%        0.000000
+50%        0.000000
+75%        0.000000
+max        4.138889
+Name: reward_sparse, dtype: float64
+
+---------------- reward_dense ----------------
+Valid rows: 3151
+Valid fraction: 1.0000
+Nonzero rows: 3001
+Nonzero fraction: 0.9524
+
+Statistics:
+count    3151.000000
+mean        0.001362
+std         0.267049
+min        -2.588801
+25%        -0.118558
+50%         0.000000
+75%         0.115658
+max         2.989402
+Name: reward_dense, dtype: float64
+
+---------------- reward_observed_only ----------------
+Valid rows: 85
+Valid fraction: 0.0270
+Nonzero rows: 80
+Nonzero fraction: 0.0254
+
+Statistics:
+count    85.000000
+mean      0.136183
+std       1.291326
+min      -4.166667
+25%      -0.575000
+50%       0.041667
+75%       1.041667
+max       4.138889
+Name: reward_observed_only, dtype: float64
+
+================ ACTION DISTRIBUTION ================
+
+action_name
+none                 0.340844
+decrease_activity    0.133291
+increase_activity    0.132022
+decrease_social      0.116788
+increase_social      0.110758
+increase_sleep       0.087591
+decrease_sleep       0.078705
+Name: proportion, dtype: float64
+
+================ REWARD BY ACTION ===================
+
+action_name
+decrease_activity   -0.197331
+decrease_sleep      -0.256821
+decrease_social     -0.239158
+increase_activity    0.180057
+increase_sleep       0.285506
+increase_social      0.248626
+none                -0.001490
+Name: reward_dense, dtype: float64
+
+====================================================
+
+Saving output...
+
+DONE
+  student_id        date     timestamp  ...  sleep_z_lag3  activity_z_lag3  social_z_lag3
+0        u00  2013-03-22  1.363910e+09  ...      0.000000         0.000000       0.000000
+1        u00  2013-03-23  1.363997e+09  ...      0.000000         0.000000       0.000000
+2        u00  2013-03-24  1.364083e+09  ...      0.000000         0.000000       0.000000
+3        u00  2013-03-25  1.364170e+09  ...     -0.854111         0.119154      -0.385137
+4        u00  2013-03-26  1.364256e+09  ...     -0.854111         0.119154       2.477997
+
+[5 rows x 45 columns]
+
+Shape: (3151, 45)
+
+Missing:
+student_id                 0
+date                       0
+timestamp                  0
+mood                    2938
+sleep                      0
+activity                   0
+social                     0
+mood_observed              0
+timestamp_diff            49
+timestamp_diff_days        0
+episode_start              0
+episode_id                 0
+next_episode_start         0
+done                       0
+sleep_z                    0
+activity_z                 0
+social_z                   0
+activity_z_delta           0
+sleep_z_delta              0
+social_z_delta             0
+action                     0
+action_name                0
+mood_centered           2938
+mood_short_term         2963
+mood_trend              2476
+mood_long_term          2438
+sleep_delta                0
+activity_delta             0
+social_delta               0
+reward_sparse           2963
+reward_dense               0
+reward_observed_only    3066
+reward                     0
+mood_lag1                  0
+sleep_z_lag1               0
+activity_z_lag1            0
+social_z_lag1              0
+mood_lag2                  0
+sleep_z_lag2               0
+activity_z_lag2            0
+social_z_lag2              0
+mood_lag3                  0
+sleep_z_lag3               0
+activity_z_lag3            0
+social_z_lag3              0
+dtype: int64
