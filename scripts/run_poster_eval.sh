@@ -22,6 +22,14 @@ echo "Using: $PY ($("$PY" -c 'import numpy; print("numpy", numpy.__version__)'))
   --splits test \
   --n-bootstrap 300
 
+# Optional IQL / AWAC (custom PyTorch; skip if checkpoints missing)
+if [[ -f models/iql_best_reward_dense.pt ]]; then
+  "$PY" algorithms/evaluate_iql_awac_models.py \
+    --reward-variants reward_dense \
+    --splits test \
+    --n-bootstrap 300
+fi
+
 "$PY" algorithms/extended_policy_comparison.py --n-bootstrap 300
 
 "$PY" algorithms/visualize_policy_comparison.py --export-latex

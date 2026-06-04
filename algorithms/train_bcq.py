@@ -26,6 +26,15 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from offline_rl_common import (
+    GAMMA as COMMON_GAMMA,
+    MLP,
+    N_ACTIONS,
+    N_STATE,
+    ReplayBuffer,
+    STATE_COLS,
+)
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 TRAIN_CSV    = PROJECT_ROOT / "final_datasets" / "daily_studentlife.train.csv"
@@ -33,88 +42,16 @@ MODEL_DIR    = PROJECT_ROOT / "models"
 MODEL_PATH   = MODEL_DIR / "bcq_model.pt"
 LOG_PATH     = MODEL_DIR / "bcq_training_log.csv"
 
-STATE_COLS = [
-    "mood", "sleep_z", "activity_z", "social_z",
-    "mood_lag1", "sleep_z_lag1", "activity_z_lag1", "social_z_lag1",
-    "mood_lag2", "sleep_z_lag2", "activity_z_lag2", "social_z_lag2",
-    "mood_lag3", "sleep_z_lag3", "activity_z_lag3", "social_z_lag3",
-    "mood_observed",
-]
-NEXT_STATE_COLS = [f"next_{c}" for c in STATE_COLS]
-
-N_ACTIONS = 7
-N_STATE   = len(STATE_COLS)
-
 # Training hyperparameters from Fujimoto et al. 2019, adapted for CPU.
 # Default is 15k steps — sufficient for this small dataset (~2400 transitions).
 # Increase to 30k on GPU or if td_loss hasn't converged by the end of training.
 LR                 = 1e-4
 BATCH_SIZE         = 64
-GAMMA              = 0.99
+GAMMA              = COMMON_GAMMA
 TARGET_UPDATE_FREQ = 100   # C: hard target-network update every C gradient steps
 N_STEPS            = 15_000
 BCQ_THRESHOLD      = 0.3   # keep only actions where P(a|s)/max_P(·|s) >= threshold
 SEED               = 42
-
-
-# ---------------------------------------------------------------------------
-# Network
-# ---------------------------------------------------------------------------
-
-class MLP(nn.Module):
-    """Two-hidden-layer MLP used for both the BC network and the Q network."""
-
-    def __init__(
-        self,
-        input_dim:  int,
-        output_dim: int,
-        hidden:     list = None,
-    ):
-        super().__init__()
-        if hidden is None:
-            hidden = [256, 256]
-        dims   = [input_dim] + list(hidden) + [output_dim]
-        layers = []
-        for i in range(len(dims) - 1):
-            layers.append(nn.Linear(dims[i], dims[i + 1]))
-            if i < len(dims) - 2:
-                layers.append(nn.ReLU())
-        self.net = nn.Sequential(*layers)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.net(x)
-
-
-# ---------------------------------------------------------------------------
-# Replay buffer
-# ---------------------------------------------------------------------------
-
-class ReplayBuffer:
-    """Holds the full offline dataset in memory and samples random mini-batches."""
-
-    def __init__(self, df: pd.DataFrame, reward_col: str = "reward_dense"):
-        self.states      = torch.FloatTensor(
-            df[STATE_COLS].fillna(0.0).to_numpy("float32")
-        )
-        self.next_states = torch.FloatTensor(
-            df[NEXT_STATE_COLS].fillna(0.0).to_numpy("float32")
-        )
-        self.actions     = torch.LongTensor(df["action"].to_numpy("int64"))
-        self.rewards     = torch.FloatTensor(
-            df[reward_col].fillna(0.0).to_numpy("float32")
-        )
-        self.dones       = torch.FloatTensor(df["done"].to_numpy("float32"))
-        self.size        = len(df)
-
-    def sample(self, batch_size: int) -> tuple:
-        idx = torch.randint(0, self.size, (batch_size,))
-        return (
-            self.states[idx],
-            self.actions[idx],
-            self.rewards[idx],
-            self.next_states[idx],
-            self.dones[idx],
-        )
 
 
 # ---------------------------------------------------------------------------

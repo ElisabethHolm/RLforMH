@@ -1,8 +1,8 @@
 {
   "best_mood_improvement": {
-    "policy": "majority_action",
-    "value": 0.8,
-    "n_matched": 5
+    "policy": "awac",
+    "value": 1.0,
+    "n_matched": 3
   },
   "best_pdis": {
     "policy": "contextual_bandit",

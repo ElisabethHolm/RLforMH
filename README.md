@@ -178,6 +178,22 @@ One-shot pipeline (figures + LaTeX table):
 bash scripts/run_poster_eval.sh
 ```
 
+### Discrete IQL and AWAC (custom PyTorch)
+
+d3rlpy's `IQLConfig` / `AWACConfig` are **continuous-action** only; this repo
+implements **discrete** IQL and AWAC in PyTorch (same chronological splits and
+OPE pipeline as DQN / BCQ).
+
+```bash
+python algorithms/hyperparameter_search_iql_awac.py --quick --reward-variants reward_dense
+python algorithms/evaluate_iql_awac_models.py --splits test
+```
+
+Outputs: `models/iql_awac_hparam_search_results.{json,csv}`,
+`models/iql_best_reward_dense.pt`, `models/awac_best_reward_dense.pt`,
+`models/iql_awac_ope_metrics.{json,csv}`. Policies are included in
+`extended_policy_comparison.py` and focus figures when those checkpoints exist.
+
 ### Weighted IS and Doubly Robust OPE
 
 ```bash

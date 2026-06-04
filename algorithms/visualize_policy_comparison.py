@@ -45,6 +45,7 @@ MODEL_DIR = PROJECT_ROOT / "models"
 FIGURES_DIR = PROJECT_ROOT / "figures"
 
 DQN_METRICS_CSV = MODEL_DIR / "dqn_saved_model_ope_metrics.csv"
+IQL_AWAC_METRICS_CSV = MODEL_DIR / "iql_awac_ope_metrics.csv"
 EXTENDED_CSV = MODEL_DIR / "extended_comparison_results.csv"
 BANDIT_CSV = MODEL_DIR / "contextual_bandit_metrics.csv"
 SUBGROUP_CSV = MODEL_DIR / "dqn_subgroup_policy_analysis.csv"
@@ -63,6 +64,8 @@ POSTER_POLICY_ORDER = [
     "double_dqn",
     "bcq",
     "cql",
+    "iql",
+    "awac",
 ]
 
 ACTION_COLS = [
@@ -89,6 +92,8 @@ FOCUS_POLICIES = [
     "contextual_bandit",
     "bcq",
     "cql",
+    "iql",
+    "awac",
     "dqn",
     "double_dqn",
 ]
@@ -109,6 +114,8 @@ SCATTER_LABEL_OFFSETS = {
     "cql": (10, -14),
     "dqn": (10, 10),
     "double_dqn": (10, -16),
+    "iql": (10, 12),
+    "awac": (-36, 10),
 }
 
 POLICY_ORDER = [
@@ -120,6 +127,8 @@ POLICY_ORDER = [
     "contextual_bandit",
     "bcq",
     "cql",
+    "iql",
+    "awac",
     "dqn",
     "double_dqn",
 ]
@@ -133,6 +142,8 @@ POLICY_LABELS = {
     "contextual_bandit": "Ctx. bandit",
     "bcq": "BCQ",
     "cql": "CQL",
+    "iql": "IQL",
+    "awac": "AWAC",
     "dqn": "DQN",
     "double_dqn": "Double DQN",
 }
@@ -146,6 +157,8 @@ POLICY_TYPE = {
     "contextual_bandit": "Bandit",
     "bcq": "Offline RL",
     "cql": "Offline RL",
+    "iql": "Offline RL",
+    "awac": "Offline RL",
     "dqn": "Offline RL",
     "double_dqn": "Offline RL",
 }
@@ -160,6 +173,8 @@ POLICY_COLORS = {
     "contextual_bandit": "#fd8d3c",
     "bcq": "#2171b5",
     "cql": "#6baed6",
+    "iql": "#884ea0",
+    "awac": "#9b59b6",
     "dqn": "#41ab5d",
     "double_dqn": "#238b45",
 }
@@ -429,6 +444,61 @@ def load_dqn_rows(
     return rows[base_cols + extra]
 
 
+def load_iql_awac_rows(
+    path: Path,
+    split: str,
+    reward_variant: str | None,
+) -> pd.DataFrame:
+    if not path.exists():
+        return pd.DataFrame()
+
+    df = pd.read_csv(path)
+    split_name = {"val": "val", "validation": "val"}.get(split, split)
+    mask = df["split"] == split_name
+    if reward_variant:
+        mask &= df["reward_variant"] == reward_variant
+    rows = df.loc[mask].copy()
+    if rows.empty:
+        return pd.DataFrame()
+
+    rows["policy"] = rows["algo"]
+    rows["match_rate"] = rows["action_match"]
+    for suffix in CI_SUFFIXES:
+        am_key = f"action_match{suffix}"
+        mr_key = f"match_rate{suffix}"
+        if am_key in rows.columns:
+            rows[mr_key] = rows[am_key]
+        elif mr_key in rows.columns:
+            rows[am_key] = rows[mr_key]
+    if "mood_n_matched" in rows.columns:
+        rows["n_matched"] = rows["mood_n_matched"]
+    else:
+        rows["n_matched"] = np.nan
+    rows["dr_estimator"] = "sequential"
+    rows["mean_behavior_support"] = np.nan
+    rows["pct_low_support"] = np.nan
+    rows["source"] = "iql_awac_ope"
+    base_cols = [
+        "policy",
+        "reward_variant",
+        "split",
+        "pdis",
+        "weighted_pdis",
+        "dr",
+        "match_rate",
+        "mood_improvement",
+        "n_matched",
+        "dr_estimator",
+        "mean_behavior_support",
+        "pct_low_support",
+        "effective_sample_size",
+        "source",
+        *_uncertainty_column_names(),
+    ]
+    extra = [c for c in ACTION_COLS if c in rows.columns]
+    return rows[base_cols + extra]
+
+
 def load_dqn_action_rates(
     path: Path,
     split: str,
@@ -593,6 +663,9 @@ def build_comparison_table(
     focus: bool = True,
 ) -> pd.DataFrame:
     dqn = load_dqn_rows(DQN_METRICS_CSV, split=split, reward_variant=reward_variant)
+    iql_awac = load_iql_awac_rows(
+        IQL_AWAC_METRICS_CSV, split=split, reward_variant=reward_variant
+    )
     extended = load_extended_rows(EXTENDED_CSV)
 
     keep_cols = [
@@ -619,7 +692,10 @@ def build_comparison_table(
             extended["dr"].notna(), "sequential", "none"
         )
 
-    merged = pd.concat([extended, dqn], ignore_index=True, sort=False)
+    frames = [extended, dqn]
+    if not iql_awac.empty:
+        frames.append(iql_awac)
+    merged = pd.concat(frames, ignore_index=True, sort=False)
     merged = merged.drop_duplicates(subset=["policy"], keep="last")
     merged = _enrich_bandit_metrics(merged, reward_variant=reward_variant, split=split)
 

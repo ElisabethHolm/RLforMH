@@ -49,6 +49,8 @@ from ope_uncertainty import (  # noqa: E402
     DEFAULT_BOOTSTRAP_SAMPLES,
     attach_policy_uncertainty,
 )
+from discrete_awac import load_awac_policy as load_awac_checkpoint  # noqa: E402
+from discrete_iql import load_iql_policy as load_iql_checkpoint  # noqa: E402
 from train_bcq import BCQPolicyWrapper, MLP, train_bcq  # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -68,6 +70,8 @@ BASELINE_PKL  = MODEL_DIR / "studentlife_baseline_models.pkl"
 BANDIT_PKL    = MODEL_DIR / "contextual_bandit_models.pkl"
 BCQ_PATH      = MODEL_DIR / "bcq_model.pt"
 BCQ_LOG_PATH  = MODEL_DIR / "bcq_training_log.csv"
+IQL_PATH      = MODEL_DIR / "iql_best_reward_dense.pt"
+AWAC_PATH     = MODEL_DIR / "awac_best_reward_dense.pt"
 OUT_JSON      = MODEL_DIR / "extended_comparison_results.json"
 OUT_CSV       = MODEL_DIR / "extended_comparison_results.csv"
 BANDIT_CSV    = MODEL_DIR / "contextual_bandit_metrics.csv"
@@ -198,6 +202,14 @@ def load_cql_policy() -> CQLPolicyWrapper:
 
 def load_bcq_policy() -> BCQPolicyWrapper:
     return BCQPolicyWrapper.load(BCQ_PATH)
+
+
+def load_iql_policy():
+    return load_iql_checkpoint(IQL_PATH)
+
+
+def load_awac_policy():
+    return load_awac_checkpoint(AWAC_PATH)
 
 
 def load_bandit_policy() -> BanditPolicyWrapper:
@@ -684,6 +696,20 @@ def main() -> None:
         print("  Bandit loaded.")
     except Exception as exc:
         print(f"  Bandit skipped: {exc}")
+
+    print("Loading IQL ...")
+    try:
+        policies.append(load_iql_policy())
+        print("  IQL loaded.")
+    except Exception as exc:
+        print(f"  IQL skipped: {exc}")
+
+    print("Loading AWAC ...")
+    try:
+        policies.append(load_awac_policy())
+        print("  AWAC loaded.")
+    except Exception as exc:
+        print(f"  AWAC skipped: {exc}")
 
     policies.append(behavior_policy)
     policies.extend(other_baselines)
