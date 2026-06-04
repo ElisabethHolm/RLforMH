@@ -32,10 +32,15 @@ from evaluate_policies import (  # noqa: E402
     N_ACTIONS,
     compute_doubly_robust_estimate,
     compute_importance_weight_diagnostics,
+    compute_mood_improvement_stats,
     compute_pdis_estimate,
     compute_trajectory_is_estimate,
     compute_weighted_is_estimate,
     compute_weighted_pdis_estimate,
+)
+from ope_uncertainty import (  # noqa: E402
+    DEFAULT_BOOTSTRAP_SAMPLES,
+    attach_policy_uncertainty,
 )
 from hyperparameter_search_dqn import (  # noqa: E402
     ALGO_CONFIGS,
@@ -51,6 +56,7 @@ from hyperparameter_search_dqn import (  # noqa: E402
     fit_behavior_policy,
     load_splits,
     mood_improvement,
+    mood_improvement_stats,
     train_and_eval,
 )
 
@@ -188,6 +194,14 @@ def parse_args():
         action="store_true",
         help="Retrain configs whose per-algo checkpoint is missing.",
     )
+    parser.add_argument(
+        "--n-bootstrap",
+        type=int,
+        default=DEFAULT_BOOTSTRAP_SAMPLES,
+        help=(
+            "Bootstrap replicates for OPE/match CIs (0 = skip; mood uses analytic CI)."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -311,15 +325,22 @@ def build_model(best_config: dict, train_ds, device: str):
     return model
 
 
-def evaluate_model_on_split(model, split_df, reward_col: str, behavior_policy) -> dict:
+def evaluate_model_on_split(
+    model,
+    split_df,
+    reward_col: str,
+    behavior_policy,
+    n_bootstrap: int = DEFAULT_BOOTSTRAP_SAMPLES,
+) -> dict:
     ds = build_mdp_dataset(split_df, reward_col)
     episodes = extract_episodes(split_df, reward_col)
     policy = DQNPolicyWrapper(model)
     weight_diagnostics = compute_importance_weight_diagnostics(
         episodes, policy, behavior_policy
     )
+    mood_imp, mood_n = compute_mood_improvement_stats(episodes, policy)
 
-    return {
+    metrics = {
         "num_rows": int(len(split_df)),
         "num_episodes": int(len(episodes)),
         "td_error": float(TDErrorEvaluator(episodes=ds.episodes)(model, ds)),
@@ -342,9 +363,22 @@ def evaluate_model_on_split(model, split_df, reward_col: str, behavior_policy) -
         "weight_mean": weight_diagnostics["weight_mean"],
         "weight_max": weight_diagnostics["weight_max"],
         "nonzero_weight_episodes": weight_diagnostics["nonzero_weight_episodes"],
-        "mood_improvement": mood_improvement(episodes, policy),
+        "mood_improvement": mood_imp,
+        "mood_n_matched": mood_n,
         "direct_method_v0": direct_method_v0(episodes, policy),
     }
+    attach_policy_uncertainty(
+        metrics,
+        episodes,
+        policy,
+        behavior_policy,
+        n_bootstrap=n_bootstrap,
+    )
+    for suffix in ("_se", "_ci_low", "_ci_high"):
+        ci_key = f"match_rate{suffix}"
+        if ci_key in metrics:
+            metrics[f"action_match{suffix}"] = metrics[ci_key]
+    return metrics
 
 
 def state_matrix(df: pd.DataFrame) -> np.ndarray:
@@ -495,13 +529,20 @@ def evaluate_model_on_subset(
     reward_col: str,
     behavior_policy,
     min_rows: int,
+    n_bootstrap: int = DEFAULT_BOOTSTRAP_SAMPLES,
 ) -> dict:
     metrics = policy_behavior_metrics(model, subset_df, min_rows)
     metrics["reliable_support"] = bool(metrics["num_rows"] >= min_rows)
     if subset_df.empty:
         return metrics
 
-    ope = evaluate_model_on_split(model, subset_df, reward_col, behavior_policy)
+    ope = evaluate_model_on_split(
+        model,
+        subset_df,
+        reward_col,
+        behavior_policy,
+        n_bootstrap=n_bootstrap,
+    )
     metrics.update(ope)
     return metrics
 
@@ -540,6 +581,7 @@ def compute_subgroup_analysis(
             reward_col,
             behavior_policy,
             args.min_subgroup_rows,
+            n_bootstrap=args.n_bootstrap,
         )
         rows.append(
             {
@@ -559,6 +601,7 @@ def compute_student_analysis(
     split: str,
     behavior_policy,
     min_rows: int,
+    n_bootstrap: int = DEFAULT_BOOTSTRAP_SAMPLES,
 ) -> list:
     rows = []
     df = split_df.copy()
@@ -569,6 +612,7 @@ def compute_student_analysis(
             reward_col,
             behavior_policy,
             min_rows,
+            n_bootstrap=n_bootstrap,
         )
         rows.append(
             {
@@ -790,6 +834,7 @@ def main() -> None:
                     split_df,
                     reward_col,
                     behavior_policy,
+                    n_bootstrap=args.n_bootstrap,
                 )
                 metadata = {
                     "reward_variant": reward_col,
@@ -826,6 +871,7 @@ def main() -> None:
                         split,
                         behavior_policy,
                         args.min_subgroup_rows,
+                        n_bootstrap=args.n_bootstrap,
                     ):
                         student_rows.append({**metadata, **student_row})
 

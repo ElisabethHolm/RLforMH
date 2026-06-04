@@ -341,8 +341,8 @@ def fit_behavior_policy(train_df: pd.DataFrame, seed: int) -> BehaviorPolicy:
 # ---------------------------------------------------------------------------
 
 
-def mood_improvement(episodes: list, policy) -> float:
-    """Mean next-day mood delta over steps where the policy matches the log."""
+def mood_improvement_stats(episodes: list, policy) -> tuple[float, int]:
+    """Mean next-day mood delta on matched-action steps with observed mood."""
     deltas = []
     for ep in episodes:
         predicted = policy.predict(ep["states"])
@@ -351,7 +351,14 @@ def mood_improvement(episodes: list, policy) -> float:
             delta = ep["next_moods"][i] - ep["mood"][i]
             if np.isfinite(delta):
                 deltas.append(float(delta))
-    return float(np.mean(deltas)) if deltas else float("nan")
+    if not deltas:
+        return float("nan"), 0
+    return float(np.mean(deltas)), len(deltas)
+
+
+def mood_improvement(episodes: list, policy) -> float:
+    """Mean next-day mood delta over steps where the policy matches the log."""
+    return mood_improvement_stats(episodes, policy)[0]
 
 
 def direct_method_v0(episodes: list, policy: DQNPolicyWrapper) -> float:

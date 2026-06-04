@@ -3,3 +3,5 @@ numpy==1.24.4
 torch
 d3rlpy
 scikit-learn
+matplotlib>=3.7
+seaborn>=0.12

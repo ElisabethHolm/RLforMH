@@ -202,18 +202,20 @@ action-overlap with the logged behavior.
 % --- Results Table ----------------------------------------------------
 \begin{block}{Results --- Test Split (Dense Reward)}
 \justifying
-All numbers from logged evaluation artifacts in \texttt{models/}.
-PDIS uses behavior cloning as logging policy (IS clip $= 5$).
-DR = doubly robust estimator (available for CQL, DQN variants, BCQ).
-$\Delta$mood = mean next-day mood change on matched-action steps only;
-``---'' indicates zero matched steps.
+All numbers from chronological \textbf{test} split (\texttt{models/extended\_comparison\_results.csv}
+and \texttt{dqn\_saved\_model\_ope\_metrics.csv}).
+Sequential OPE uses behavior cloning as logging policy (IS clip $= 5$).
+WPDIS = self-normalized PDIS (primary offline metric).
+DR = sequential doubly robust (Q-policies); $^\dagger$ = bandit one-step DR.
+$\Delta$mood = matched-action, mood-observed steps; $\mathrm{NA}\,(0)$ = no valid mood pairs.
 
 \medskip
 \centering
-\small
-\setlength{\tabcolsep}{6pt}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{
   l
+  r
   r
   r
   r
@@ -222,35 +224,38 @@ $\Delta$mood = mean next-day mood change on matched-action steps only;
 \toprule
 \textbf{Policy}
   & \textbf{PDIS}
-  & \textbf{DR / DM}
+  & \textbf{WPDIS}
+  & \textbf{DR}
   & \textbf{$\Delta$mood}
-  & \textbf{Match \%} \\
+  & \textbf{Match\%} \\
 \midrule
 \rowcolor{lightgray}
-Random uniform       & $+$0.0058 & ---      & $+$0.58 & 13.1 \\
-Majority action      & $+$0.0007 & ---      & $+$0.80 & 40.0 \\
+Random uniform       & $+$0.0058 & $-$0.0067 & ---              & $+$0.58\,(2)  & 13.1 \\
+Majority action      & $+$0.0007 & $+$0.0168 & ---              & $+$0.80\,(5)  & 40.0 \\
 \rowcolor{lightgray}
-Action frequency     & $+$0.0038 & ---      & ---     & 20.7 \\
-Behavior cloning     & $-$0.0027 & ---      & $+$0.14 & 89.2 \\
+Action frequency     & $+$0.0038 & $+$0.0239 & ---              & $\mathrm{NA}\,(0)$ & 20.7 \\
+Behavior cloning     & $-$0.0027 & $-$0.0028 & ---              & $+$0.14\,(14) & 89.2 \\
 \rowcolor{lightgray}
-Rule-based           & $+$0.0113 & ---      & $-$0.83 & ~4.9 \\
+Rule-based           & $+$0.0113 & $+$0.0302 & ---              & $-$0.83\,(1)  & ~4.9 \\
 \midrule
-\textbf{CQL}         & $-$0.0187 & $-$6.01  & $+$0.12 & 95.1 \\
+Ctx.\ bandit         & $+$0.0169 & $+$0.0260 & $+$0.1211^\dagger$ & $\mathrm{NA}\,(0)$ & 16.4 \\
 \rowcolor{lightgray}
-\textbf{DQN}         & $+$0.0167 & $+$0.28  & ---     & 20.7 \\
-\textbf{Double DQN}  & $+$0.0198 & $+$0.56  & $+$1.00 & 20.0 \\
+\textbf{CQL}         & $-$0.0187 & $-$0.0041 & $-$6.0141        & $+$0.12\,(13) & 95.1 \\
+\textbf{DQN}         & $+$0.0167 & $+$0.0339 & $+$0.2786        & $\mathrm{NA}\,(0)$ & 20.7 \\
+\textbf{Double DQN}  & $+$0.0198 & $+$0.0435 & $+$0.5604        & $+$1.00\,(1)  & 20.0 \\
 \rowcolor{lightgray}
-\textbf{BCQ}         & $-$0.0049 & $+$0.21  & $+$0.12 & 84.9 \\
+\textbf{BCQ}         & $-$0.0049 & $-$0.0045 & $+$0.2084        & $+$0.12\,(13) & 84.9 \\
 \bottomrule
 \end{tabular}
 
 \medskip
 \justifying
 \footnotesize
-\textit{Notes.} CQL DR is highly negative due to aggressive Q-value underestimation
-from the conservative penalty, not true policy failure.
-Double DQN $\Delta$mood $= +1.0$ is from $n{=}2$ matched steps (interpret with caution).
-Low effective sample size ($\text{ESS}\approx2$--$2.5$ episodes) limits IS reliability.
+\textit{Notes.} $^\dagger$ = one-step bandit DR (not sequential).
+CQL DR unstable; treat as diagnostic only.
+$\Delta$mood counts in parentheses; values with $n<5$ are unreliable.
+ESS $\approx 2$--$2.5$ episodes for DQN variants limits IS reliability.
+Regenerate rows: \texttt{python algorithms/visualize\_policy\_comparison.py --export-latex}.
 \end{block}
 
 % --- OPE Metrics Plot -------------------------------------------------
@@ -260,11 +265,9 @@ Low effective sample size ($\text{ESS}\approx2$--$2.5$ episodes) limits IS relia
 \end{center}
 \footnotesize
 \justifying
-\textit{Grouped bar chart of PDIS, Weighted PDIS, and DR estimates on the
-test split (focus policies: Behavior Cloning, Ctx.~Bandit, BCQ, DQN,
-Double DQN). Double DQN achieves the highest PDIS ($+0.020$) and DR ($+0.560$).
-Negative PDIS for CQL and BCQ reflects low IS weights when the policy
-deviates from logged behavior.}
+\textit{Two-panel plot: PDIS / WPDIS (top) and DR (bottom) with 95\% bootstrap
+error bars (episode resampling). DR panel clipped for readability; full CIs in
+table. Focus policies: Behavior Cloning, Ctx.~Bandit, BCQ, CQL, DQN, Double DQN.}
 \end{block}
 
 % --- Scatter Plot -----------------------------------------------------

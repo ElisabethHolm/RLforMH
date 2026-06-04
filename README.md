@@ -161,6 +161,23 @@ Note: PDIS for `reward_sparse` / `reward_observed_only` can be near-degenerate
 because almost every reward is `0`; this is expected, and is why the built-in
 metrics and mood improvement are logged alongside it.
 
+### Environment (important)
+
+Use the project virtualenv **`cs224r`**, not conda `base`. Base often has
+NumPy 2.x (breaks matplotlib) and lacks `d3rlpy`:
+
+```bash
+source cs224r/bin/activate   # prompt should show (cs224r), not (base)
+python -c "import d3rlpy, numpy; print(numpy.__version__)"  # expect 1.24.x
+```
+
+If the venv does not exist yet, create it from the install steps above.
+One-shot pipeline (figures + LaTeX table):
+
+```bash
+bash scripts/run_poster_eval.sh
+```
+
 ### Weighted IS and Doubly Robust OPE
 
 ```bash
@@ -171,6 +188,18 @@ This evaluates the saved best DQN / Double DQN models on the
 `final_datasets/` train, validation, and test splits without rerunning the grid.
 It writes `models/dqn_saved_model_ope_metrics.json` and
 `models/dqn_saved_model_ope_metrics.csv`.
+
+Evaluation exports and `visualize_policy_comparison.py` figures include **95%
+error bars** when you re-run evaluation with bootstrap enabled (default
+`--n-bootstrap 300` on `extended_policy_comparison.py` and
+`evaluate_dqn_models.py`; use `0` for a fast point-estimate-only run):
+
+- **PDIS / weighted PDIS / DR / match%**: episode-level bootstrap CIs (clustered
+  by student episode).
+- **Δmood**: normal-approximation CI on matched steps with observed mood.
+
+Poster figures (`*_test_focus.png`) use **display caps** on whiskers (split PDIS/WPDIS
+vs DR panels; DR axis clipped). Full CIs remain in `models/*.csv` and JSON.
 
 The extra OPE metrics are robustness checks for the PDIS-selected models:
 
