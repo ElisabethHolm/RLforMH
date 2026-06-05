@@ -3,10 +3,7 @@ import json
 import pandas as pd
 import numpy as np
 
-# =========================================================
 # CONFIG
-# =========================================================
-
 DATASET_ROOT = "studentLifeDataset"
 OUTPUT_PATH = "daily_studentlife_no_transitions.csv"
 HISTORY_DAYS = 3
@@ -14,10 +11,7 @@ ACTION_THRESHOLD = 0.6
 REWARD_LONG_WINDOW = 7
 REWARD_LONG_WEIGHT = 0.25
 
-# =========================================================
 # HELPERS
-# =========================================================
-
 def unix_to_date(ts):
     return pd.to_datetime(ts, unit="s").date()
 
@@ -97,10 +91,7 @@ def compute_reward(df):
     df["reward"] = df["mood_short_term"] + REWARD_LONG_WEIGHT * df["mood_long_term"]
     return df
 
-# =========================================================
 # MOOD
-# =========================================================
-
 def process_mood():
     mood_dir = os.path.join(DATASET_ROOT, "EMA/response/Mood")
     rows = []
@@ -147,10 +138,7 @@ def process_mood():
         .reset_index()
     )
 
-# =========================================================
 # SLEEP
-# =========================================================
-
 def process_sleep():
     sleep_dir = os.path.join(DATASET_ROOT, "EMA/response/Sleep")
     rows = []
@@ -186,10 +174,7 @@ def process_sleep():
         return pd.DataFrame(columns=["student_id", "date", "sleep"])
     return df.groupby(["student_id", "date"]).agg({"sleep": "mean"}).reset_index()
 
-# =========================================================
 # ACTIVITY
-# =========================================================
-
 def process_activity():
     activity_dir = os.path.join(DATASET_ROOT, "sensing/activity")
     rows = []
@@ -219,10 +204,7 @@ def process_activity():
         return pd.DataFrame(columns=["student_id", "date", "activity"])
     return pd.concat(rows, ignore_index=True)
 
-# =========================================================
 # SOCIAL
-# =========================================================
-
 def process_social():
     def load_simple(dir_path, col):
         rows = []
@@ -286,10 +268,7 @@ def process_social():
     )
     return social[["student_id", "date", "social"]]
 
-# =========================================================
 # BUILD DATASET
-# =========================================================
-
 print("Processing mood...")
 mood_df = process_mood()
 
@@ -376,10 +355,7 @@ df = df.dropna(subset=["reward"]).reset_index(drop=True)
 # convert action to categorical labels for easier downstream training
 df["action"] = df["action"].astype(int)
 
-# =========================================================
 # REWARD DIAGNOSTICS
-# =========================================================
-
 print("\n================ REWARD DIAGNOSTICS ================\n")
 
 total_rows = len(df)

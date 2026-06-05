@@ -245,15 +245,11 @@ import os
 import json
 import pandas as pd
 
-# =========================================================
 # CONFIG
-# =========================================================
 
 DATASET_ROOT = "studentLifeDataset"
 
-# =========================================================
 # HELPER FUNCTIONS
-# =========================================================
 
 def print_section(title):
     print("\n" + "=" * 80)
@@ -310,10 +306,7 @@ def inspect_json(path, nrows=3):
     except Exception as e:
         print(f"ERROR: {e}")
 
-# =========================================================
 # DIRECTORY OVERVIEW (HIGH LEVEL ONLY)
-# =========================================================
-
 print_section("TOP-LEVEL DIRECTORY STRUCTURE")
 
 for item in sorted(os.listdir(DATASET_ROOT)):
@@ -337,16 +330,10 @@ for item in sorted(os.listdir(DATASET_ROOT)):
     else:
         print(item)
 
-# =========================================================
 # TARGET FILES TO INSPECT
-# =========================================================
-
 print_section("INSPECT IMPORTANT DATA SOURCES")
 
-# ---------------------------------------------------------
 # MOOD EMA
-# ---------------------------------------------------------
-
 mood_json = os.path.join(
     DATASET_ROOT,
     "EMA",
@@ -356,11 +343,7 @@ mood_json = os.path.join(
 )
 
 inspect_json(mood_json)
-
-# ---------------------------------------------------------
 # SLEEP EMA
-# ---------------------------------------------------------
-
 sleep_json = os.path.join(
     DATASET_ROOT,
     "EMA",
@@ -371,10 +354,7 @@ sleep_json = os.path.join(
 
 inspect_json(sleep_json)
 
-# ---------------------------------------------------------
 # ACTIVITY SENSOR
-# ---------------------------------------------------------
-
 activity_csv = os.path.join(
     DATASET_ROOT,
     "sensing",
@@ -384,10 +364,7 @@ activity_csv = os.path.join(
 
 inspect_csv(activity_csv)
 
-# ---------------------------------------------------------
 # CONVERSATION SENSOR
-# ---------------------------------------------------------
-
 conversation_csv = os.path.join(
     DATASET_ROOT,
     "sensing",
@@ -397,10 +374,7 @@ conversation_csv = os.path.join(
 
 inspect_csv(conversation_csv)
 
-# ---------------------------------------------------------
 # CALL LOG
-# ---------------------------------------------------------
-
 call_csv = os.path.join(
     DATASET_ROOT,
     "call_log",
@@ -409,10 +383,7 @@ call_csv = os.path.join(
 
 inspect_csv(call_csv)
 
-# ---------------------------------------------------------
 # SMS LOG
-# ---------------------------------------------------------
-
 sms_csv = os.path.join(
     DATASET_ROOT,
     "sms",
@@ -421,10 +392,7 @@ sms_csv = os.path.join(
 
 inspect_csv(sms_csv)
 
-# ---------------------------------------------------------
 # SURVEY DATA
-# ---------------------------------------------------------
-
 survey_csv = os.path.join(
     DATASET_ROOT,
     "survey",
@@ -433,10 +401,7 @@ survey_csv = os.path.join(
 
 inspect_csv(survey_csv)
 
-# =========================================================
 # COUNT USERS PER MODALITY
-# =========================================================
-
 print_section("USER COVERAGE PER DATA SOURCE")
 
 sources = {
@@ -466,10 +431,7 @@ for name, folder in sources.items():
     except Exception as e:
         print(f"{name}: ERROR {e}")
 
-# =========================================================
 # RECOMMENDED FEATURES SUMMARY
-# =========================================================
-
 print_section("RECOMMENDED FEATURES FOR RL PIPELINE")
 
 print("""

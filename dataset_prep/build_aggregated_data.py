@@ -3,9 +3,7 @@ import json
 import pandas as pd
 import numpy as np
 
-# =========================================================
 # CONFIG
-# =========================================================
 
 DATASET_ROOT = "studentLifeDataset"
 OUTPUT_PATH = "daily_studentlife_no_transitions.csv"
@@ -16,9 +14,7 @@ ACTION_THRESHOLD = 0.6
 REWARD_LONG_WINDOW = 7
 REWARD_LONG_WEIGHT = 0.25
 
-# =========================================================
 # HELPERS
-# =========================================================
 
 def unix_to_date(ts):
     return pd.to_datetime(ts, unit="s").date()
@@ -37,9 +33,7 @@ def normalize_per_student(df, cols):
     )
 
 
-# =========================================================
 # ACTION LABELS
-# =========================================================
 
 def build_action_labels(df):
 
@@ -90,9 +84,7 @@ def build_action_labels(df):
     return df
 
 
-# =========================================================
 # HISTORY FEATURES
-# =========================================================
 
 def add_history_features(df, cols, n):
 
@@ -111,24 +103,16 @@ def add_history_features(df, cols, n):
     return df
 
 
-# =========================================================
 # REWARD FUNCTIONS
-# =========================================================
 
 def compute_reward(df):
 
-    # -------------------------------------------------
     # centered mood relative to student baseline
-    # -------------------------------------------------
-
     df["mood_centered"] = df.groupby("student_id")["mood"].transform(
         lambda x: x - x.mean()
     )
 
-    # -------------------------------------------------
     # mood reward components
-    # -------------------------------------------------
-
     df["mood_short_term"] = (
         df.groupby("student_id")["mood_centered"].diff()
     )
@@ -144,9 +128,7 @@ def compute_reward(df):
         df.groupby("student_id")["mood_trend"].diff()
     )
 
-    # -------------------------------------------------
     # behavioral deltas
-    # -------------------------------------------------
 
     df["sleep_delta"] = (
         df.groupby("student_id")["sleep_z"].diff()
@@ -160,19 +142,13 @@ def compute_reward(df):
         df.groupby("student_id")["social_z"].diff()
     )
 
-    # -------------------------------------------------
     # REWARD 1: sparse mood reward
-    # -------------------------------------------------
-
     df["reward_sparse"] = (
         df["mood_short_term"]
         + REWARD_LONG_WEIGHT * df["mood_long_term"]
     )
 
-    # -------------------------------------------------
     # REWARD 2: dense wellness reward
-    # -------------------------------------------------
-
     df["reward_dense"] = (
         0.60 * df["mood_short_term"].fillna(0)
         + 0.15 * df["sleep_delta"].fillna(0)
@@ -180,10 +156,7 @@ def compute_reward(df):
         + 0.10 * df["activity_delta"].fillna(0)
     )
 
-    # -------------------------------------------------
     # REWARD 3: observed-only reward
-    # -------------------------------------------------
-
     df["reward_observed_only"] = df["reward_sparse"]
 
     previous_mood_observed = (
@@ -199,10 +172,7 @@ def compute_reward(df):
 
     df.loc[invalid_mask, "reward_observed_only"] = np.nan
 
-    # -------------------------------------------------
     # default reward
-    # -------------------------------------------------
-
     df["reward"] = df["reward_dense"]
 
     return df
@@ -278,10 +248,7 @@ def process_mood():
     )
 
 
-# =========================================================
 # SLEEP
-# =========================================================
-
 def process_sleep():
 
     sleep_dir = os.path.join(DATASET_ROOT, "EMA/response/Sleep")
@@ -335,10 +302,7 @@ def process_sleep():
     )
 
 
-# =========================================================
 # ACTIVITY
-# =========================================================
-
 def process_activity():
 
     activity_dir = os.path.join(DATASET_ROOT, "sensing/activity")
@@ -396,10 +360,7 @@ def process_activity():
     return pd.concat(rows, ignore_index=True)
 
 
-# =========================================================
 # SOCIAL
-# =========================================================
-
 def process_social():
 
     def load_simple(dir_path, col):
@@ -544,10 +505,7 @@ def process_social():
     return social[["student_id", "date", "social"]]
 
 
-# =========================================================
 # BUILD DATASET
-# =========================================================
-
 print("Processing mood...")
 mood_df = process_mood()
 
@@ -584,18 +542,12 @@ df = df.sort_values(
     ["student_id", "date"]
 ).reset_index(drop=True)
 
-# =========================================================
 # OBSERVED MOOD FLAG
-# =========================================================
-
 df["mood_observed"] = (
     df["mood"].notna().astype(int)
 )
 
-# =========================================================
 # SENSOR IMPUTATION
-# =========================================================
-
 sensor_features = [
     "sleep",
     "activity",
@@ -616,10 +568,7 @@ df[sensor_features] = (
     df[sensor_features].fillna(0)
 )
 
-# =========================================================
 # TIMESTAMP HANDLING
-# =========================================================
-
 if "timestamp" not in df.columns:
     df["timestamp"] = np.nan
 
@@ -632,10 +581,7 @@ df["timestamp"] = (
     df["timestamp"].fillna(midnights)
 )
 
-# =========================================================
 # EPISODE SPLITTING
-# =========================================================
-
 df["timestamp_diff"] = (
     df.groupby("student_id")["timestamp"]
     .diff()
@@ -676,10 +622,7 @@ gaps = int((df["timestamp_diff_days"] > 2).sum())
 
 print(f"Large gaps (>2 days) between steps: {gaps}")
 
-# =========================================================
 # SOCIAL STABILIZATION
-# =========================================================
-
 if "social" in df.columns:
 
     social_upper = df["social"].quantile(0.99)
@@ -691,10 +634,7 @@ if "social" in df.columns:
 
     df["social"] = np.log1p(df["social"])
 
-# =========================================================
 # NORMALIZATION
-# =========================================================
-
 z_cols = [
     "sleep_z",
     "activity_z",
@@ -706,10 +646,7 @@ df[z_cols] = normalize_per_student(
     sensor_features
 )
 
-# =========================================================
 # ACTION LABELS
-# =========================================================
-
 print("Building action labels...")
 
 df = build_action_labels(df)
@@ -729,10 +666,7 @@ df.loc[
     "action_name"
 ] = "none"
 
-# =========================================================
 # REWARDS
-# =========================================================
-
 print("Computing reward...")
 
 df = compute_reward(df)
@@ -753,10 +687,7 @@ df.loc[
     episode_reward_cols
 ] = 0
 
-# =========================================================
 # HISTORY FEATURES
-# =========================================================
-
 print(f"Adding history features (last {HISTORY_DAYS} days)...")
 
 state_cols = [
@@ -772,10 +703,7 @@ df = add_history_features(
     HISTORY_DAYS
 )
 
-# =========================================================
 # REWARD DIAGNOSTICS
-# =========================================================
-
 print("\n================ REWARD DIAGNOSTICS ================\n")
 
 total_rows = len(df)
@@ -828,16 +756,10 @@ print(
 
 print("\n====================================================\n")
 
-# =========================================================
 # FINAL CLEANUP
-# =========================================================
-
 df["action"] = df["action"].astype(int)
 
-# =========================================================
 # SAVE
-# =========================================================
-
 print("Saving output...")
 
 df.to_csv(OUTPUT_PATH, index=False)
