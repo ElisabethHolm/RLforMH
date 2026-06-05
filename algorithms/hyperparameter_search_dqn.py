@@ -48,10 +48,6 @@ from d3rlpy.metrics import (
     DiscreteActionMatchEvaluator,
     TDErrorEvaluator,
 )
-from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
-
 # Make the sibling evaluate_policies module importable when run as a script.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from evaluate_policies import (  # noqa: E402
@@ -64,6 +60,14 @@ from evaluate_policies import (  # noqa: E402
     compute_trajectory_is_estimate,
     compute_weighted_is_estimate,
     compute_weighted_pdis_estimate,
+)
+from offline_rl_common import (  # noqa: E402
+    BehaviorPolicy,
+    STATE_COLS,
+    build_mdp_dataset,
+    extract_episodes,
+    fit_behavior_policy,
+    load_splits,
 )
 
 # Keep the d3rlpy console output quiet during the (potentially large) sweep.
@@ -88,26 +92,6 @@ DATASET_BASENAME = "daily_studentlife"
 MODEL_DIR = PROJECT_ROOT / "models"
 RESULTS_JSON = MODEL_DIR / "dqn_hparam_search_results.json"
 RESULTS_CSV = MODEL_DIR / "dqn_hparam_search_results.csv"
-
-STATE_COLS = [
-    "mood",
-    "sleep_z",
-    "activity_z",
-    "social_z",
-    "mood_lag1",
-    "sleep_z_lag1",
-    "activity_z_lag1",
-    "social_z_lag1",
-    "mood_lag2",
-    "sleep_z_lag2",
-    "activity_z_lag2",
-    "social_z_lag2",
-    "mood_lag3",
-    "sleep_z_lag3",
-    "activity_z_lag3",
-    "social_z_lag3",
-    "mood_observed",
-]
 
 REWARD_VARIANTS = ["reward_sparse", "reward_dense", "reward_observed_only"]
 ALGOS = ["dqn", "double_dqn"]
@@ -208,72 +192,6 @@ def parse_args():
 
 
 # ---------------------------------------------------------------------------
-# Data loading
-# ---------------------------------------------------------------------------
-
-
-def load_splits(data_dir: Path, basename: str) -> dict:
-    """Load the train/val/test CSV splits produced by prepare_rl_dataset.py."""
-    paths = {
-        split: data_dir / f"{basename}.{split}.csv"
-        for split in ("train", "val", "test")
-    }
-    missing = [str(p) for p in paths.values() if not p.exists()]
-    if missing:
-        raise FileNotFoundError(
-            "Missing split files: "
-            + ", ".join(missing)
-            + ". Generate them with dataset_prep/prepare_rl_dataset.py."
-        )
-    return {split: pd.read_csv(p) for split, p in paths.items()}
-
-
-def build_mdp_dataset(df: pd.DataFrame, reward_col: str) -> MDPDataset:
-    """
-    Build a d3rlpy MDPDataset, filling NaN observations and rewards with 0.
-
-    The split CSVs are date-ordered, so rows are first re-sorted into contiguous
-    (student_id, episode_id) episodes. The last row of each episode is marked
-    terminal so d3rlpy never forms a transition across episode/student
-    boundaries (and so at least one terminal always exists).
-    """
-    df = df.sort_values(["student_id", "episode_id", "date"]).reset_index(drop=True)
-    terminals = (
-        ~df.duplicated(subset=["student_id", "episode_id"], keep="last")
-    ).to_numpy()
-    return MDPDataset(
-        observations=df[STATE_COLS].fillna(0.0).to_numpy("float32"),
-        actions=df["action"].to_numpy("int64"),
-        rewards=df[reward_col].fillna(0.0).to_numpy("float32"),
-        terminals=terminals,
-    )
-
-
-def extract_episodes(df: pd.DataFrame, reward_col: str) -> list:
-    """
-    Group rows into episodes by (student_id, episode_id) for OPE.
-
-    States and rewards are NaN-filled (to feed the network / PDIS), but mood and
-    next_mood are kept raw so the mood-improvement estimate can skip steps where
-    either side is unobserved.
-    """
-    episodes = []
-    for _, grp in df.groupby(["student_id", "episode_id"]):
-        grp = grp.sort_values("date").reset_index(drop=True)
-        episodes.append(
-            {
-                "states": grp[STATE_COLS].fillna(0.0).to_numpy("float32"),
-                "actions": grp["action"].to_numpy("int64"),
-                "rewards": grp[reward_col].fillna(0.0).to_numpy("float32"),
-                "mood": grp["mood"].to_numpy("float32"),
-                "next_moods": grp["next_mood"].to_numpy("float32"),
-                "T": len(grp),
-            }
-        )
-    return episodes
-
-
-# ---------------------------------------------------------------------------
 # Policy wrappers
 # ---------------------------------------------------------------------------
 
@@ -307,42 +225,13 @@ class DQNPolicyWrapper:
         )
 
 
-class BehaviorPolicy:
-    """Behavior-cloning logging policy used as the PDIS denominator."""
-
-    name = "behavior_cloning_logistic"
-
-    def __init__(self, model, classes: np.ndarray):
-        self._model = model
-        self._classes = [int(c) for c in classes]
-
-    def action_probs(self, states: np.ndarray) -> np.ndarray:
-        raw = self._model.predict_proba(states)
-        probs = np.full((len(states), N_ACTIONS), 1e-8, dtype="float64")
-        for col, action in enumerate(self._classes):
-            probs[:, action] = raw[:, col]
-        return probs / probs.sum(axis=1, keepdims=True)
-
-
-def fit_behavior_policy(train_df: pd.DataFrame, seed: int) -> BehaviorPolicy:
-    """Fit a logistic-regression behavior policy on the train split."""
-    x = train_df[STATE_COLS].fillna(0.0).to_numpy("float32")
-    y = train_df["action"].to_numpy("int64")
-    model = make_pipeline(
-        StandardScaler(),
-        LogisticRegression(max_iter=1000, random_state=seed),
-    )
-    model.fit(x, y)
-    return BehaviorPolicy(model, model.classes_)
-
-
 # ---------------------------------------------------------------------------
 # OPE estimators (IS/DR estimators are imported; these are NaN-aware variants)
 # ---------------------------------------------------------------------------
 
 
-def mood_improvement(episodes: list, policy) -> float:
-    """Mean next-day mood delta over steps where the policy matches the log."""
+def mood_improvement_stats(episodes: list, policy) -> tuple[float, int]:
+    """Mean next-day mood delta on matched-action steps with observed mood."""
     deltas = []
     for ep in episodes:
         predicted = policy.predict(ep["states"])
@@ -351,7 +240,14 @@ def mood_improvement(episodes: list, policy) -> float:
             delta = ep["next_moods"][i] - ep["mood"][i]
             if np.isfinite(delta):
                 deltas.append(float(delta))
-    return float(np.mean(deltas)) if deltas else float("nan")
+    if not deltas:
+        return float("nan"), 0
+    return float(np.mean(deltas)), len(deltas)
+
+
+def mood_improvement(episodes: list, policy) -> float:
+    """Mean next-day mood delta over steps where the policy matches the log."""
+    return mood_improvement_stats(episodes, policy)[0]
 
 
 def direct_method_v0(episodes: list, policy: DQNPolicyWrapper) -> float:

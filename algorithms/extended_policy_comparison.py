@@ -19,6 +19,10 @@ import sys
 import warnings
 from pathlib import Path
 
+from _env_check import require_numpy1_for_matplotlib
+
+require_numpy1_for_matplotlib()
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -35,11 +39,18 @@ from evaluate_policies import (  # noqa: E402
     compute_pdis_estimate,
     compute_weighted_pdis_estimate,
     compute_doubly_robust_estimate,
+    compute_mood_improvement_stats,
     CQLPolicyWrapper,
     SklearnPolicyWrapper,
     RuleBasedPolicyWrapper,
     RandomPolicyWrapper,
 )
+from ope_uncertainty import (  # noqa: E402
+    DEFAULT_BOOTSTRAP_SAMPLES,
+    attach_policy_uncertainty,
+)
+from discrete_awac import load_awac_policy as load_awac_checkpoint  # noqa: E402
+from discrete_iql import load_iql_policy as load_iql_checkpoint  # noqa: E402
 from train_bcq import BCQPolicyWrapper, MLP, train_bcq  # noqa: E402
 
 # ---------------------------------------------------------------------------
@@ -59,9 +70,13 @@ BASELINE_PKL  = MODEL_DIR / "studentlife_baseline_models.pkl"
 BANDIT_PKL    = MODEL_DIR / "contextual_bandit_models.pkl"
 BCQ_PATH      = MODEL_DIR / "bcq_model.pt"
 BCQ_LOG_PATH  = MODEL_DIR / "bcq_training_log.csv"
+IQL_PATH      = MODEL_DIR / "iql_best_reward_dense.pt"
+AWAC_PATH     = MODEL_DIR / "awac_best_reward_dense.pt"
 OUT_JSON      = MODEL_DIR / "extended_comparison_results.json"
 OUT_CSV       = MODEL_DIR / "extended_comparison_results.csv"
+BANDIT_CSV    = MODEL_DIR / "contextual_bandit_metrics.csv"
 ABLATION_CSV  = MODEL_DIR / "bcq_reward_ablation.csv"
+REWARD_COL      = "reward_dense"
 
 NEXT_STATE_COLS  = [f"next_{c}" for c in STATE_COLS]
 REWARD_VARIANTS  = ["reward_sparse", "reward_dense", "reward_observed_only"]
@@ -112,26 +127,6 @@ def extract_episodes(df: pd.DataFrame, reward_col: str = "reward_dense") -> list
             "T":          len(grp),
         })
     return episodes
-
-
-def compute_mood_improvement(episodes: list, policy) -> tuple:
-    """
-    Mean next-day mood delta on timesteps where the policy matches the logged
-    action AND both current and next mood are observed (non-NaN).
-
-    Returns:
-        (mean_delta, n_matched) — n_matched is the number of valid observations
-        the mean is based on; use this to assess statistical reliability.
-    """
-    diffs = []
-    for ep in episodes:
-        pred = policy.predict(ep["states"])
-        for i in np.where(pred == ep["actions"])[0]:
-            delta = ep["next_moods"][i] - ep["mood"][i]
-            if np.isfinite(delta):
-                diffs.append(float(delta))
-    value = float(np.mean(diffs)) if diffs else float("nan")
-    return value, len(diffs)
 
 
 # ---------------------------------------------------------------------------
@@ -209,6 +204,14 @@ def load_bcq_policy() -> BCQPolicyWrapper:
     return BCQPolicyWrapper.load(BCQ_PATH)
 
 
+def load_iql_policy():
+    return load_iql_checkpoint(IQL_PATH)
+
+
+def load_awac_policy():
+    return load_awac_checkpoint(AWAC_PATH)
+
+
 def load_bandit_policy() -> BanditPolicyWrapper:
     with open(BANDIT_PKL, "rb") as f:
         payload = pickle.load(f)
@@ -262,7 +265,7 @@ def evaluate_policy_extended(
     logged_actions: np.ndarray,
     behavior_policy,
 ) -> dict:
-    mood_imp, n_matched = compute_mood_improvement(episodes, policy)
+    mood_imp, n_matched = compute_mood_improvement_stats(episodes, policy)
     result = {
         "policy":             policy.name,
         "pdis":               _fmt(compute_pdis_estimate(
@@ -283,7 +286,64 @@ def evaluate_policy_extended(
         result["dr"] = _fmt(
             compute_doubly_robust_estimate(episodes, policy, behavior_policy)
         )
+        result["dr_estimator"] = "sequential"
+    else:
+        result["dr_estimator"] = "none"
     return result
+
+
+def evaluate_policy_extended_with_uncertainty(
+    policy,
+    episodes: list,
+    all_states: np.ndarray,
+    logged_actions: np.ndarray,
+    behavior_policy,
+    n_bootstrap: int = DEFAULT_BOOTSTRAP_SAMPLES,
+) -> dict:
+    result = evaluate_policy_extended(
+        policy, episodes, all_states, logged_actions, behavior_policy
+    )
+    attach_policy_uncertainty(
+        result, episodes, policy, behavior_policy, n_bootstrap=n_bootstrap
+    )
+    for key, value in list(result.items()):
+        if key.endswith(("_se", "_ci_low", "_ci_high")) and value is not None:
+            if isinstance(value, float) and np.isfinite(value):
+                result[key] = _fmt(value)
+            elif isinstance(value, float):
+                result[key] = None
+    return result
+
+
+def enrich_bandit_metrics(
+    results: list,
+    reward_variant: str = REWARD_COL,
+    split: str = "test",
+) -> list:
+    """Fill contextual-bandit DR (one-step) from saved bandit metrics CSV."""
+    if not BANDIT_CSV.exists():
+        return results
+
+    bandit_df = pd.read_csv(BANDIT_CSV)
+    mask = (bandit_df["reward_variant"] == reward_variant) & (
+        bandit_df["split"] == split
+    )
+    bandit_row = bandit_df.loc[mask]
+    if bandit_row.empty:
+        return results
+
+    row = bandit_row.iloc[0]
+    for result in results:
+        if result.get("policy") != "contextual_bandit":
+            continue
+        result["dr"] = _fmt(float(row["dr_reward"]))
+        result["dr_estimator"] = "bandit_1step"
+        mood_n = int(row["matched_mood_n"]) if "matched_mood_n" in row.index else 0
+        result["n_matched"] = mood_n
+        if mood_n > 0 and pd.notna(row.get("matched_mood_improvement")):
+            result["mood_improvement"] = _fmt(float(row["matched_mood_improvement"]))
+        break
+    return results
 
 
 def _fmt(val, n: int = 6):
@@ -300,9 +360,35 @@ def fig_mood_improvement(results: list) -> None:
     names  = [r["policy"] for r in results]
     values = [r["mood_improvement"] or 0.0 for r in results]
     colors = [_color(n) for n in names]
+    lows, highs = [], []
+    for r in results:
+        lo, hi = r.get("mood_improvement_ci_low"), r.get("mood_improvement_ci_high")
+        v = r.get("mood_improvement") or 0.0
+        if lo is not None and hi is not None and np.isfinite(lo) and np.isfinite(hi):
+            lows.append(max(0.0, float(v) - float(lo)))
+            highs.append(max(0.0, float(hi) - float(v)))
+        else:
+            lows.append(0.0)
+            highs.append(0.0)
+    show_yerr = any(
+        r.get("mood_improvement_ci_low") is not None
+        and r.get("mood_improvement_ci_high") is not None
+        and np.isfinite(r.get("mood_improvement_ci_low"))
+        and np.isfinite(r.get("mood_improvement_ci_high"))
+        for r in results
+    )
 
     fig, ax = plt.subplots(figsize=(11, 5))
-    ax.bar(range(len(names)), values, color=colors, edgecolor="black", linewidth=0.5)
+    bar_kwargs = {
+        "color": colors,
+        "edgecolor": "black",
+        "linewidth": 0.5,
+    }
+    if show_yerr:
+        bar_kwargs["yerr"] = np.array([lows, highs])
+        bar_kwargs["capsize"] = 3
+        bar_kwargs["error_kw"] = {"elinewidth": 1.0, "ecolor": "#333333"}
+    ax.bar(range(len(names)), values, **bar_kwargs)
     ax.axhline(0, linestyle="--", color="black", linewidth=1.0, alpha=0.7)
     ax.set_xticks(range(len(names)))
     ax.set_xticklabels(names, rotation=35, ha="right", fontsize=9)
@@ -470,7 +556,7 @@ def run_reward_ablation(behavior_policy) -> None:
         wrapper  = BCQPolicyWrapper(bc_net, q_net)
         episodes = extract_episodes(test_df, reward_col=reward_col)
         pdis     = compute_pdis_estimate(episodes, wrapper, behavior_policy)
-        mood_imp, n_matched = compute_mood_improvement(episodes, wrapper)
+        mood_imp, n_matched = compute_mood_improvement_stats(episodes, wrapper)
         rows.append({
             "reward_variant":   reward_col,
             "pdis":             _fmt(pdis),
@@ -562,6 +648,14 @@ def main() -> None:
         action="store_true",
         help="Also run BCQ reward-variant ablation (trains 3 extra BCQ models).",
     )
+    parser.add_argument(
+        "--n-bootstrap",
+        type=int,
+        default=DEFAULT_BOOTSTRAP_SAMPLES,
+        help=(
+            "Bootstrap replicates for OPE/match CIs (0 = skip; mood uses analytic CI)."
+        ),
+    )
     args = parser.parse_args()
 
     # Load test split
@@ -603,6 +697,20 @@ def main() -> None:
     except Exception as exc:
         print(f"  Bandit skipped: {exc}")
 
+    print("Loading IQL ...")
+    try:
+        policies.append(load_iql_policy())
+        print("  IQL loaded.")
+    except Exception as exc:
+        print(f"  IQL skipped: {exc}")
+
+    print("Loading AWAC ...")
+    try:
+        policies.append(load_awac_policy())
+        print("  AWAC loaded.")
+    except Exception as exc:
+        print(f"  AWAC skipped: {exc}")
+
     policies.append(behavior_policy)
     policies.extend(other_baselines)
 
@@ -612,10 +720,17 @@ def main() -> None:
     for policy in policies:
         print(f"  {policy.name} ...")
         results.append(
-            evaluate_policy_extended(
-                policy, episodes, all_states, logged_actions, behavior_policy
+            evaluate_policy_extended_with_uncertainty(
+                policy,
+                episodes,
+                all_states,
+                logged_actions,
+                behavior_policy,
+                n_bootstrap=args.n_bootstrap,
             )
         )
+
+    results = enrich_bandit_metrics(results)
 
     # Print summary table to stdout
     print_summary_table(results)

@@ -226,12 +226,14 @@ def action_distribution(actions: np.ndarray) -> dict:
     }
 
 
-def matched_mood_improvement(df: pd.DataFrame, matches: np.ndarray) -> float | None:
+def matched_mood_improvement(df: pd.DataFrame, matches: np.ndarray) -> tuple[float | None, int]:
     deltas = df.loc[matches, "next_mood"].to_numpy("float32") - df.loc[
         matches, "mood"
     ].to_numpy("float32")
     deltas = deltas[np.isfinite(deltas)]
-    return float(deltas.mean()) if len(deltas) else None
+    if len(deltas) == 0:
+        return None, 0
+    return float(deltas.mean()), int(len(deltas))
 
 
 def evaluate_split(
@@ -274,6 +276,7 @@ def evaluate_split(
     matched_reward_mean = (
         float(matched_rewards.mean()) if len(matched_rewards) else None
     )
+    mood_delta, mood_n = matched_mood_improvement(df, matches)
 
     return {
         "reward_variant": reward_col,
@@ -283,7 +286,8 @@ def evaluate_split(
         "snips_reward": snips_reward,
         "dr_reward": dr_reward,
         "matched_logged_reward_mean": matched_reward_mean,
-        "matched_mood_improvement": matched_mood_improvement(df, matches),
+        "matched_mood_improvement": mood_delta,
+        "matched_mood_n": mood_n,
         "matched_logged_action_count": int(matches.sum()),
         "action_match": float(matches.mean()),
         "importance_weight_mean": float(weights.mean()),

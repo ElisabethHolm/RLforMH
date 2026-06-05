@@ -1,0 +1,18 @@
+% Compact table (PDIS, DR, mood, match only) — same policies as full table.
+\begin{tabular}{lrrrr}
+  \toprule
+  \textbf{Policy} & \textbf{PDIS} & \textbf{DR} & \textbf{$\Delta$mood} & \textbf{Match\%} \\
+  \midrule
+  Random uniform      & $+$0.0058 & ---              & $+$0.58\,(2)  & 13.1 \\
+  Majority action     & $+$0.0007 & ---              & $+$0.80\,(5)  & 40.0 \\
+  Action frequency    & $+$0.0038 & ---              & $\mathrm{NA}\,(0)$ & 20.7 \\
+  Behavior cloning    & $-$0.0027 & ---              & $+$0.14\,(14) & 89.2 \\
+  Rule-based          & $+$0.0113 & ---              & $-$0.83\,(1)  &  4.9 \\
+  \midrule
+  Ctx.\ bandit        & $+$0.0169 & $+$0.1211^\dagger$ & $\mathrm{NA}\,(0)$ & 16.4 \\
+  \textbf{CQL}        & $-$0.0187 & $-$6.01          & $+$0.12\,(13) & 95.1 \\
+  \textbf{DQN}        & $+$0.0167 & $+$0.28          & $\mathrm{NA}\,(0)$ & 20.7 \\
+  \textbf{Double DQN} & $+$0.0198 & $+$0.56          & $+$1.00\,(1)  & 20.0 \\
+  \textbf{BCQ}        & $-$0.0049 & $+$0.21          & $+$0.12\,(13) & 84.9 \\
+  \bottomrule
+\end{tabular}

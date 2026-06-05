@@ -471,6 +471,19 @@ def compute_direct_method(
     # -----------------------------------------------------------------------
 
 
+def compute_mood_improvement_deltas(episodes: list, policy) -> list[float]:
+    """Matched-action mood deltas with finite current and next mood."""
+    deltas = []
+    for episode in episodes:
+        pred_actions = policy.predict(episode["states"])
+        matched_actions = np.where(pred_actions == episode["actions"])[0]
+        for i in matched_actions:
+            delta = episode["next_moods"][i] - episode["mood"][i]
+            if np.isfinite(delta):
+                deltas.append(float(delta))
+    return deltas
+
+
 def compute_mood_improvement(episodes: list, policy) -> float:
     """
     Proxy for causal mood improvement (within-support estimation).
@@ -490,17 +503,17 @@ def compute_mood_improvement(episodes: list, policy) -> float:
         mean mood delta (float) over matched steps, or np.nan if no matches
 
     """
-    # -----------------------------------------------------------------------
-    differences = []
-    for episode in episodes:
-        pred_actions = policy.predict(episode["states"])
-        # where predicted actions match with actions we actually observed
-        matched_actions = np.where(pred_actions == episode["actions"])[0]
-        for i in matched_actions:
-            differences.append(episode["next_moods"][i] - episode["mood"][i])
-    return np.mean(differences) if differences else np.nan
+    deltas = compute_mood_improvement_deltas(episodes, policy)
+    return float(np.mean(deltas)) if deltas else float("nan")
 
-    # -----------------------------------------------------------------------
+
+def compute_mood_improvement_stats(episodes: list, policy) -> tuple[float, int]:
+    """Return (mean_delta, n_matched) on finite mood pairs."""
+    deltas = compute_mood_improvement_deltas(episodes, policy)
+    if not deltas:
+        return float("nan"), 0
+    return float(np.mean(deltas)), len(deltas)
+
 
 # ---------------------------------------------------------------------------
 # Evaluation driver (boilerplate — no TODOs below this line)
