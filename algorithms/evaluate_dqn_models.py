@@ -48,6 +48,7 @@ from hyperparameter_search_dqn import (  # noqa: E402
     DEFAULT_DATA_DIR,
     MODEL_DIR,
     RESULTS_JSON,
+    REWARD_VARIANTS,
     DQNPolicyWrapper,
     STATE_COLS,
     build_mdp_dataset,
@@ -74,6 +75,8 @@ except Exception:  # pragma: no cover - structlog is a d3rlpy dependency
 
 OUT_JSON = MODEL_DIR / "dqn_saved_model_ope_metrics.json"
 OUT_CSV = MODEL_DIR / "dqn_saved_model_ope_metrics.csv"
+ABLATION_CSV = MODEL_DIR / "double_dqn_reward_ablation.csv"
+ABLATION_JSON = MODEL_DIR / "double_dqn_reward_ablation.json"
 SUBGROUP_JSON = MODEL_DIR / "dqn_subgroup_policy_analysis.json"
 SUBGROUP_CSV = MODEL_DIR / "dqn_subgroup_policy_analysis.csv"
 STUDENT_CSV = MODEL_DIR / "dqn_student_policy_analysis.csv"
@@ -201,6 +204,32 @@ def parse_args():
         help=(
             "Bootstrap replicates for OPE/match CIs (0 = skip; mood uses analytic CI)."
         ),
+    )
+    parser.add_argument(
+        "--reward-ablation",
+        action="store_true",
+        help=(
+            "Train Double DQN once per reward variant with fixed best dense-reward "
+            "hyperparameters and evaluate on the test split (mirrors BCQ ablation)."
+        ),
+    )
+    parser.add_argument(
+        "--ablation-n-steps",
+        type=int,
+        default=None,
+        help="Training steps for --reward-ablation (default: n_steps from search JSON).",
+    )
+    parser.add_argument(
+        "--ablation-output-csv",
+        type=Path,
+        default=ABLATION_CSV,
+        help="CSV path for --reward-ablation results.",
+    )
+    parser.add_argument(
+        "--ablation-output-json",
+        type=Path,
+        default=ABLATION_JSON,
+        help="JSON path for --reward-ablation results.",
     )
     return parser.parse_args()
 
@@ -776,6 +805,117 @@ def print_subgroup_summary(subgroup_rows: list, student_rows: list) -> None:
             )
 
 
+def fixed_double_dqn_ablation_config(payload: dict) -> dict:
+    """Best validation-PDIS Double DQN hyperparameters on reward_dense."""
+    return best_configs_per_algo(payload, "reward_dense", ["double_dqn"])["double_dqn"]
+
+
+def run_double_dqn_reward_ablation(
+    args,
+    payload: dict,
+    splits: dict,
+    behavior_policy,
+) -> list:
+    """
+    Train Double DQN per reward variant with fixed hyperparameters from the
+    best dense-reward model, then evaluate PDIS and mood improvement on test.
+    """
+    config = fixed_double_dqn_ablation_config(payload)
+    hp = {
+        "learning_rate": config["learning_rate"],
+        "batch_size": config["batch_size"],
+        "target_update_interval": config["target_update_interval"],
+        "hidden_units": config["hidden_units"],
+    }
+    algo = "double_dqn"
+    n_steps = args.ablation_n_steps or payload.get("n_steps", 5000)
+    n_steps_per_epoch = min(payload.get("n_steps_per_epoch", n_steps), n_steps)
+    seed = payload.get("seed", 42)
+    test_df = splits["test"]
+    rows = []
+
+    print(
+        "\n=== Double DQN Reward Variant Ablation ===\n"
+        f"Fixed hyperparameters from best reward_dense Double DQN: {hp}\n"
+        f"Training steps: {n_steps}"
+    )
+
+    for reward_col in REWARD_VARIANTS:
+        print(f"\nAblation: training Double DQN with reward_col={reward_col} ...")
+        train_ds = build_mdp_dataset(splits["train"], reward_col)
+        val_ds = build_mdp_dataset(splits["val"], reward_col)
+        val_episodes = extract_episodes(splits["val"], reward_col)
+        model, _ = train_and_eval(
+            algo,
+            hp,
+            train_ds,
+            val_ds,
+            val_episodes,
+            behavior_policy,
+            n_steps,
+            n_steps_per_epoch,
+            args.device,
+            seed,
+        )
+        metrics = evaluate_model_on_split(
+            model,
+            test_df,
+            reward_col,
+            behavior_policy,
+            n_bootstrap=0,
+        )
+        rows.append(
+            {
+                "reward_variant": reward_col,
+                "algo": algo,
+                "n_steps": n_steps,
+                "learning_rate": hp["learning_rate"],
+                "batch_size": hp["batch_size"],
+                "target_update_interval": hp["target_update_interval"],
+                "hidden_units": "x".join(map(str, hp["hidden_units"])),
+                "pdis": metrics["pdis"],
+                "weighted_pdis": metrics["weighted_pdis"],
+                "dr": metrics["dr"],
+                "action_match": metrics["action_match"],
+                "mood_improvement": metrics["mood_improvement"],
+                "n_matched": metrics["mood_n_matched"],
+            }
+        )
+
+    print(f"\n{'Reward Variant':<32} {'PDIS':>10} {'WPDIS':>10} {'Mood Δ':>10} {'n':>4}")
+    print("-" * 70)
+    for row in rows:
+        mood = row["mood_improvement"]
+        mood_s = f"{mood:.6f}" if np.isfinite(mood) else "N/A"
+        print(
+            f"{row['reward_variant']:<32} "
+            f"{row['pdis']:>10.6f} "
+            f"{row['weighted_pdis']:>10.6f} "
+            f"{mood_s:>10} "
+            f"{row['n_matched']:>4}"
+        )
+
+    args.ablation_output_csv.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(rows).to_csv(args.ablation_output_csv, index=False)
+    json_payload = {
+        "notes": (
+            "Double DQN reward ablation: fixed hyperparameters from best "
+            "validation-PDIS Double DQN on reward_dense; one fresh train "
+            "per reward variant; test-split OPE."
+        ),
+        "generated_at": datetime.now().isoformat(timespec="seconds"),
+        "source_results_json": str(args.results_json),
+        "fixed_hyperparameters": {**hp, "algo": algo, "n_steps": n_steps},
+        "rows": clean_for_json(rows),
+    }
+    with open(args.ablation_output_json, "w") as f:
+        json.dump(json_payload, f, indent=2)
+
+    print(f"\nSaved ablation results -> {args.ablation_output_csv}")
+    print(f"Saved ablation results -> {args.ablation_output_json}")
+    return rows
+
+
 def print_summary(rows: list) -> None:
     print("\n================ SAVED DQN MODEL OPE ================")
     header = (
@@ -798,6 +938,10 @@ def main() -> None:
     payload = load_search_payload(args.results_json)
     splits = load_splits(args.data_dir, args.basename)
     behavior_policy = fit_behavior_policy(splits["train"], payload.get("seed", 42))
+
+    if args.reward_ablation:
+        run_double_dqn_reward_ablation(args, payload, splits, behavior_policy)
+        return
 
     best_per_variant = payload["best_per_variant"]
     variants = args.reward_variants or list(best_per_variant.keys())

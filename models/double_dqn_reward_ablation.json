@@ -1,0 +1,63 @@
+{
+  "notes": "Double DQN reward ablation: fixed hyperparameters from best validation-PDIS Double DQN on reward_dense; one fresh train per reward variant; test-split OPE.",
+  "generated_at": "2026-06-08T15:07:28",
+  "source_results_json": "/Users/elisabeth/Documents/Schoolwork/CS224R/RLforMH/models/dqn_hparam_search_results.json",
+  "fixed_hyperparameters": {
+    "learning_rate": 0.0001,
+    "batch_size": 32,
+    "target_update_interval": 1000,
+    "hidden_units": [
+      256,
+      256
+    ],
+    "algo": "double_dqn",
+    "n_steps": 5000
+  },
+  "rows": [
+    {
+      "reward_variant": "reward_sparse",
+      "algo": "double_dqn",
+      "n_steps": 5000,
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": "256x256",
+      "pdis": -0.00010648266954464088,
+      "weighted_pdis": 0.007326459709633761,
+      "dr": 0.5461392604176442,
+      "action_match": 0.13114754098360656,
+      "mood_improvement": 1.0,
+      "n_matched": 1
+    },
+    {
+      "reward_variant": "reward_dense",
+      "algo": "double_dqn",
+      "n_steps": 5000,
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": "256x256",
+      "pdis": 0.01982092910768762,
+      "weighted_pdis": 0.04351120263677471,
+      "dr": 0.5604139807947817,
+      "action_match": 0.2,
+      "mood_improvement": 1.0,
+      "n_matched": 1
+    },
+    {
+      "reward_variant": "reward_observed_only",
+      "algo": "double_dqn",
+      "n_steps": 5000,
+      "learning_rate": 0.0001,
+      "batch_size": 32,
+      "target_update_interval": 1000,
+      "hidden_units": "256x256",
+      "pdis": -0.00010648266954464088,
+      "weighted_pdis": 0.007326459709633761,
+      "dr": 0.5461392604176442,
+      "action_match": 0.13114754098360656,
+      "mood_improvement": 1.0,
+      "n_matched": 1
+    }
+  ]
+}
